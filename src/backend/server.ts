@@ -1,9 +1,10 @@
 import express, { type Express, type Request, type Response } from 'express';
 import dotenv from 'dotenv';
 import { authMiddleware } from './middleware/auth';
-import profileRoutes from './backend/routes/profile';
-import { loginRoute } from './backend/controllers/auth.controller';
-import authRoutes from './backend/routes/auth';
+import profileRoutes from './routes/profile';
+import { loginRoute } from './controllers/auth.controller';
+import projectRoutes from './routes/project';
+import skillsRoutes from './routes/skills';
 
 // Load environment variables
 dotenv.config();
@@ -28,9 +29,13 @@ app.use((req, res, next) => {
 });
 
 // Routes
-// app.use("/api/login", authRoutes);
 app.post('/api/login', loginRoute);
+
 app.use('/api/profile', profileRoutes);
+
+app.use('/api/project', projectRoutes);
+
+app.use('/api/skills', skillsRoutes);
 
 // Example protected route using auth middleware
 app.get('/api/profile', authMiddleware, (req: Request, res: Response) => {

@@ -7,7 +7,6 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import agfxLogo from "../assets/agfx-logo.png";
 import {
-  BicepsFlexed,
   Briefcase,
   LogOut,
   Moon,
@@ -15,6 +14,7 @@ import {
   Settings,
   Sidebar,
   Sun,
+  User,
   UserRoundPen,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -31,7 +31,7 @@ export default function SideBar({
   const { theme, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null );
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   interface Profile {
     id: number;
@@ -55,18 +55,18 @@ export default function SideBar({
   };
   useEffect(() => {
     const fetchProfile = async () => {
-      setIsLoading(true);
+      // setIsLoading(true);
       const token = localStorage.getItem("accessToken");
       if (!token) {
         console.log("❌ No auth token found");
-        setIsLoading(false);
+        // setIsLoading(false);
         return;
       }
       // Extract profileId from JWT
       const payload = decodeJwt<{ profileId?: number }>(token);
       if (!payload?.profileId) {
         toast.error("Invalid session. Please login again.");
-        setIsLoading(false);
+        // setIsLoading(false);
         return;
       }
       try {
@@ -90,7 +90,7 @@ export default function SideBar({
         console.error("Error fetching profile:", error);
         toast.error("Failed to load profile");
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
     fetchProfile();
@@ -144,13 +144,6 @@ export default function SideBar({
             <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block' : 'hidden w-0'}`}>Manage Projects</span>
           </button>
           <button
-            onClick={() => handleTabChange("manage-skills")}
-            className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-skills" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
-          >
-            <BicepsFlexed className="w-4 h-4" />
-            <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>Manage Skills</span>
-          </button>
-          <button
             onClick={() => handleTabChange("manage-employment")}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-employment" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
@@ -162,9 +155,14 @@ export default function SideBar({
         <div className="flex flex-col p-4 shrink-0 w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger className="outline-none">
-              <div className={`flex items-center gap-2 p-2 hover:bg-sidebar-accent rounded-md cursor-pointer transition-all duration-300`}>
-                <img src={profile?.image || agfxLogo} alt="Agfx logo" className={`${isSidebarOpen ? 'w-8 h-8' : 'w-9 h-9'} rounded-full`} />
-                <p className={`transition-all duration-300 ${isSidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>{profile?.name}</p>
+              <div className={`flex items-center gap-2 ${isSidebarOpen ? 'p-2 hover:bg-sidebar-accent' : 'p-0 hover:bg-none'}  rounded-md cursor-pointer transition-all duration-300`}>
+
+                {profile?.image ? 
+                <img src={profile.image} alt="Profile" className={`w-8 h-8 rounded-full`} /> 
+                : <User className="w-8 h-8 text-muted-foreground p-2 bg-accent rounded-full" />
+                }
+
+                <p className={`transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>{profile?.name}</p>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -173,14 +171,14 @@ export default function SideBar({
             >
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-primary-foreground rounded-md"
+                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-accent rounded-md"
               >
                 <Settings className="w-4 h-4" />
                 <p>Settings</p>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-primary-foreground rounded-md"
+                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-accent rounded-md"
               >
                 {theme === "light" ? (
                   <Sun className="w-4 h-4" />
@@ -192,7 +190,7 @@ export default function SideBar({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-primary-foreground rounded-md"
+                className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-accent rounded-md"
               >
                 <LogOut className="w-4 h-4" />
                 <p>Logout</p>

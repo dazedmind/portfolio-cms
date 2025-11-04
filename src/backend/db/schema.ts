@@ -1,6 +1,6 @@
 import { date, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("projects", {
+export const projectsTable = pgTable("projects", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   description: varchar({ length: 255 }).notNull(),
@@ -8,12 +8,15 @@ export const usersTable = pgTable("projects", {
   link: varchar({ length: 255 }).notNull(),
   technologies: varchar({ length: 255 }).notNull(),
   type: varchar({ length: 255 }).notNull(),
+  user_id: integer().references(() => profileTable.id).notNull(),
 });
 
-export const technologiesTable = pgTable("technologies", {
+export const skillsTable = pgTable("skills", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   icon: varchar({ length: 255 }).notNull(),
+  category: varchar({ length: 255 }).notNull(),
+  user_id: integer().references(() => profileTable.id).notNull(),
 });
 
 export const profileTable = pgTable("profile", {

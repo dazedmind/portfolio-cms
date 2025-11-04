@@ -2,7 +2,6 @@
 import SideBar from "@/component/SideBar";
 import { useState, useEffect } from "react";
 import ManageProfile from "./manage-profile/ManageProfile";
-import ManageSkills from "./manage-skills/ManageSkills";
 import ManageProjects from "./manage-project/ManageProject";
 import ManageEmployment from "./manage-employment/ManageEmployment";
 
@@ -28,7 +27,6 @@ export default function HomePage() {
         {/* <NavBar /> */}
         <div className="p-8">
           {activeTab === "manage-profile" && <ManageProfile />}
-          {activeTab === "manage-skills" && <ManageSkills />}
           {activeTab === "manage-projects" && <ManageProjects />}
           {activeTab === "manage-employment" && <ManageEmployment />}
         </div>
