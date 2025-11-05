@@ -2,10 +2,11 @@ import { Router } from "express";
 import { db } from "@/db/database";
 import { profileTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { authMiddleware } from "@/middleware/auth";
 
 const router = Router();
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const profile = await db.select().from(profileTable).where(eq(profileTable.id, id)).limit(1);
@@ -20,7 +21,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update profile by id (preferred RESTful path)
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const { name, title, email, image, about, github, linkedin, behance, facebook } = req.body;
