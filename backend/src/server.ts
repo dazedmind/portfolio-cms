@@ -1,11 +1,11 @@
 import express, { type Express, type Request, type Response } from 'express';
 import dotenv from 'dotenv';
-import { authMiddleware } from './middleware/auth';
-import profileRoutes from './routes/profile';
-import { loginRoute } from './controllers/auth.controller';
-import projectRoutes from './routes/project';
-import skillsRoutes from './routes/skills';
-import employmentRoutes from './routes/employment';
+import { authMiddleware } from './middleware/auth.js';
+import profileRoutes from './routes/profile.js';
+import { loginRoute } from './controllers/auth.controller.js';
+import projectRoutes from './routes/project.js';
+import skillsRoutes from './routes/skills.js';
+import employmentRoutes from './routes/employment.js';
 
 // Load environment variables
 dotenv.config();

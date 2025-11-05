@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { db } from "@/backend/db/database";
-import { skillsTable } from "@/backend/db/schema";
+import { db } from "../db/database.js";
+import { skillsTable } from "../db/schema.js";
 import { and, asc, eq } from "drizzle-orm";
-import { authMiddleware } from "@/backend/middleware/auth";
+import { authMiddleware } from "../middleware/auth.js";
 
 const router = Router();
 
