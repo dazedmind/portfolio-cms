@@ -30,7 +30,7 @@ app.use((req, res, next) => {
   }
 });
 
-app.get("/", (res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("✅ Backend is live and running!");
 });
 
