@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/component/ui/button";
+import { Input } from "@/component/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/component/ui/select";
 import { useState, useEffect } from "react";
 
 // Popular tech stack icon names
@@ -48,7 +48,7 @@ const iconOptions = [
 
 export default function AddSkillModal({ onSubmit, onClose, formData, setFormData }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, onClose: () => void, formData: any, setFormData: (data: any) => void }) {
     const [showCustomInput, setShowCustomInput] = useState(false);
-
+    const [isClosing, setIsClosing] = useState(false);
     // Reset custom input state when formData is reset or iconName is cleared
     useEffect(() => {
       if (!formData.iconName) {
@@ -69,9 +69,17 @@ export default function AddSkillModal({ onSubmit, onClose, formData, setFormData
       }
     };
 
+    const requestClose = () => {
+      setIsClosing(true);
+      // Match the CSS animation duration (300ms)
+      setTimeout(() => {
+        onClose();
+      }, 300);
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-card border border-border rounded-lg space-y-4 p-4 w-100 h-auto max-h-[90vh] overflow-y-auto">
+          <div className={`bg-card border border-border rounded-lg space-y-4 p-4 w-100 h-auto max-h-[90vh] overflow-y-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
             <h1 className="text-2xl font-semibold text-primary">Add Skill</h1>
             <form onSubmit={onSubmit}>
               <div className="flex gap-4">
@@ -148,7 +156,7 @@ export default function AddSkillModal({ onSubmit, onClose, formData, setFormData
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={onClose}
+                  onClick={requestClose}
                 >
                   Close
                 </Button>

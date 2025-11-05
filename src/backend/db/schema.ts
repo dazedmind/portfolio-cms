@@ -1,4 +1,4 @@
-import { date, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { boolean, date, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
 export const projectsTable = pgTable("projects", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -33,11 +33,13 @@ export const profileTable = pgTable("profile", {
   facebook: varchar({ length: 255 }),
 });
 
-export const experiencesTable = pgTable("experiences", {
+export const employmentsTable = pgTable("employments", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   company: varchar({ length: 255 }).notNull(),
   position: varchar({ length: 255 }).notNull(),
   description: varchar({ length: 255 }).notNull(),
   startDate: date().notNull(),
-  endDate: date().notNull(),
+  endDate: date(),
+  isActive: boolean().notNull().default(false),
+  user_id: integer().references(() => profileTable.id).notNull(),
 });

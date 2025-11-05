@@ -5,12 +5,14 @@ import profileRoutes from './routes/profile';
 import { loginRoute } from './controllers/auth.controller';
 import projectRoutes from './routes/project';
 import skillsRoutes from './routes/skills';
+import employmentRoutes from './routes/employment';
 
 // Load environment variables
 dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
+// const BASE_URL = process.env.BACKEND_API_URL || 'http://localhost:5173';
 
 // Middleware
 app.use(express.json());
@@ -28,6 +30,10 @@ app.use((req, res, next) => {
   }
 });
 
+app.get("/", (res: Response) => {
+  res.send("✅ Backend is live and running!");
+});
+
 // Routes
 app.post('/api/login', loginRoute);
 
@@ -36,6 +42,8 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/project', projectRoutes);
 
 app.use('/api/skills', skillsRoutes);
+
+app.use('/api/employment', employmentRoutes);
 
 // Example protected route using auth middleware
 app.get('/api/profile', authMiddleware, (req: Request, res: Response) => {

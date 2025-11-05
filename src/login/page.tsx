@@ -1,8 +1,9 @@
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "../component/ui/button";
+import { Input } from "../component/ui/input";
 import { ArrowRightIcon } from "lucide-react";
 import NavBar from "@/component/NavBar";
 import { Toaster, toast } from "sonner";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function LoginPage() {
 
@@ -12,7 +13,7 @@ export default function LoginPage() {
     const accessKey = formData.get("accessKey") as string;
     
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

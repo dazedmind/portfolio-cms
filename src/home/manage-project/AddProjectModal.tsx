@@ -1,11 +1,20 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/component/ui/button";
+import { Input } from "@/component/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/component/ui/select";
 import { toast } from "sonner";
 import { useState } from "react";
 
 export default function AddProjectModal({ onSubmit, onClose, formData, setFormData }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, onClose: () => void, formData: any, setFormData: (data: any) => void }) {
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [isClosing, setIsClosing] = useState(false);
+
+  const requestClose = () => {
+    setIsClosing(true);
+    // Match the CSS animation duration (300ms)
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,11 +42,12 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
   
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-card border border-border rounded-lg space-y-4 p-6 w-2/4 h-auto">
+          <div className={`bg-card border border-border rounded-lg space-y-4 p-6 w-2/4 h-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
+          <h1 className="text-2xl font-semibold text-primary mb-2">Add Project</h1>
+
             <form onSubmit={onSubmit}>
               <div className="flex gap-4">
                 <span className="w-full">
-                <h1 className="text-2xl font-semibold text-primary mb-2">Add Project</h1>
 
                   <p className="text-sm font-medium text-muted-foreground mb-2">Select Project Image</p>
                   <label htmlFor="projectImage" className="text-sm font-medium text-muted-foreground  cursor-pointer">
@@ -139,7 +149,7 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                 <Button
                   variant="outline"
                   type="button"
-                  onClick={onClose}
+                  onClick={requestClose}
                 >
                   Close
                 </Button>

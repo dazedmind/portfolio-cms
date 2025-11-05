@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/component/ui/input";
+import { Button } from "@/component/ui/button";
 import { useState, useEffect, useRef } from "react";
 import {
   Upload,
@@ -13,10 +13,13 @@ import {
   Facebook,
   Save,
   Plus,
+  Trash2,
+  Menu,
 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import LoadingPage from "@/component/LoadingPage";
 import AddSkillModal from "./AddSkillModal";
+import { API_BASE_URL } from "@/lib/api";
 
 interface Profile {
   id?: number;
@@ -37,7 +40,10 @@ interface Skill {
   icon: string;
 }
 
-export default function ManageProfile() {
+interface ManageProfileProps {
+  handleOpenSidebar: () => void;
+}
+export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [profileId, setProfileId] = useState<number>(0);
@@ -98,7 +104,7 @@ export default function ManageProfile() {
         return;
       } else {
         try {
-          const res = await fetch(`/api/profile/${profileId}`, {
+          const res = await fetch(`${API_BASE_URL}/api/profile/${profileId}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -140,7 +146,7 @@ export default function ManageProfile() {
     }
 
     try {
-      const res = await fetch(`/api/skills/${profileId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/skills/${profileId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -196,7 +202,7 @@ export default function ManageProfile() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`/api/profile/${profileId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/profile/${profileId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -226,7 +232,7 @@ export default function ManageProfile() {
     
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch("/api/skills", {
+      const res = await fetch(`${API_BASE_URL}/api/skills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -249,17 +255,49 @@ export default function ManageProfile() {
     } 
   };
 
+  const handleDeleteSkill = async (id: number) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`${API_BASE_URL}/api/skills/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        toast.success("Skill deleted successfully");
+        fetchSkills(false);
+      } else {
+        toast.error("Failed to delete skill");
+      }
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+      toast.error("Failed to delete skill");
+    }
+  };
+
   if (isLoading) {
     return <LoadingPage />;
   }
 
   return (
     <div className="h-screen overflow-hidden">
-      <div className="space-y-8 h-full overflow-y-auto pr-4 pb-18 no-scrollbar">
+      <div className="space-y-8 h-full overflow-y-auto p-8 lg:p-10 pb-18 no-scrollbar">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-semibold text-primary">
-            Manage Profile
-          </h1>
+          <span>
+          <span className="flex items-center gap-2">
+            <button className="flex items-center gap-3 text-xl lg:hidden py-2" onClick={handleOpenSidebar}>
+                <Menu className="w-6 h-6" />
+              </button>
+            <h1 className="text-xl lg:text-3xl font-semibold text-primary">
+              Manage Profile
+            </h1>
+          </span>
+      
+          <p className="text-xs lg:text-lg text-muted-foreground">
+            Manage your profile information
+          </p>
+        </span>
           <Button onClick={handleSave} disabled={!hasChanges} className="gap-2">
             <Save className="w-4 h-4" />
             {isSaving ? "Saving..." : "Save Changes"}
@@ -318,9 +356,17 @@ export default function ManageProfile() {
                 <div className="flex flex-col space-y-4">
                   <div className="flex flex-wrap gap-2">
                     {skills.map((skill) => (
-                      <div key={skill.id}>
-                        <p className="p-2 px-3 border border-tertiary rounded-full text-sm text-primary">{skill.name}</p>
-                      </div>
+                      <div key={skill.id} className="relative group">
+                          <p className="p-2 px-3 border border-tertiary rounded-full text-sm group-hover:bg-black/40 group-hover:text-accent text-primary cursor-pointer motion-safe:transition-colors motion-safe:duration-200">
+                            {skill.name}
+                          </p>
+                          <button
+                            onClick={() => handleDeleteSkill(skill.id)}
+                            className="text-sm text-primary absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 motion-safe:transition-opacity motion-safe:duration-200 cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
                     ))}
                   </div>
                     <Button onClick={() => setIsAddSkillModalOpen(true)} variant="outline" className="gap-2">
@@ -397,8 +443,9 @@ export default function ManageProfile() {
               <textarea
                 value={profile?.about ?? ""}
                 onChange={(e) => handleInputChange("about", e.target.value)}
-                className="w-full min-h-[150px] rounded-md border border-input bg-transparent p-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                className="w-full rounded-md border border-input bg-transparent p-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none no-scrollbar disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                 placeholder="Tell us about yourself..."
+                rows={10}
               />
             </div>
 

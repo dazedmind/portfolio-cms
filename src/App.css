@@ -64,7 +64,7 @@ body {
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.59 0.2221 25.38);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -98,7 +98,7 @@ body {
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.24 0 none);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: oklch(0.54 0.2124 28.11);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -124,6 +124,37 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  /* Smooth, consistent transitions for interactive elements */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  label {
+    @apply motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out;
+  }
+}
+
+@layer components {
+  /* Subtle transitions for surface elements */
+  .bg-card,
+  .border,
+  .shadow,
+  .ring,
+  .hover\:bg-card:hover,
+  .hover\:border:hover {
+    @apply motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out;
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* Hide scrollbars helper */
@@ -137,4 +168,59 @@ body {
 
 .sidebar-button {
   transition: all 0.3s ease;
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease;
+  transform: translateY(0);
+}
+
+.fadeOut {
+  animation: fadeOut 0.3s ease;
+  transform: translateY(0);
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slideIn {
+  animation: slideIn 0.3s ease;
+}
+.slideOut {
+  animation: slideOut 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideOut { 
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

@@ -20,6 +20,7 @@ import {
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { API_BASE_URL } from "@/lib/api";
 
 export default function SideBar({
   handleTabChange,
@@ -27,6 +28,7 @@ export default function SideBar({
 }: {
   handleTabChange: (tab: string) => void;
   activeTab: string;
+  className?: string;
 }) {
   const { theme, setTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -70,7 +72,7 @@ export default function SideBar({
         return;
       }
       try {
-        const res = await fetch(`/api/profile/${payload.profileId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/profile/${payload.profileId}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -116,7 +118,7 @@ export default function SideBar({
           </span>
         )}
 
-        <span>
+        <span className="hidden lg:block">
           <button
             onClick={handleSidebarToggle}
             className="cursor-pointer hover:text-muted-foreground hover:bg-sidebar-accent p-2 rounded-md transition-transform duration-300"

@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import ProjectCard from "./ProjectCard";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { Button } from "@/component/ui/button";
+import { Ghost, Menu, PlusCircle } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import AddProjectModal from "./AddProjectModal";
+import { API_BASE_URL } from "@/lib/api";
 
-export default function ManageProject() {
+interface ManageProjectProps {
+  handleOpenSidebar: () => void;
+}
+export default function ManageProject({ handleOpenSidebar }: ManageProjectProps) {
   // const [profileId, setProfileId] = useState<number>(0);
   const [projects, setProjects] = useState<Project[]>([]);
   // const [imagePreview, setImagePreview] = useState<string>("");
@@ -36,7 +40,7 @@ export default function ManageProject() {
       return;
     }
     try {
-      const response = await fetch(`/api/project`, {
+      const response = await fetch(`${API_BASE_URL}/api/project`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -81,7 +85,7 @@ export default function ManageProject() {
         toast.error("Not authenticated");
         return;
       }
-      const response = await fetch("/api/project", {
+      const response = await fetch(`${API_BASE_URL}/api/project`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +128,7 @@ export default function ManageProject() {
         toast.error("Not authenticated");
         return;
       }
-      const response = await fetch(`/api/project/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/project/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +156,7 @@ export default function ManageProject() {
         toast.error("Not authenticated");
         return;
       }
-      const response = await fetch(`/api/project/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/project/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -173,22 +177,29 @@ export default function ManageProject() {
   };
 
   return (
-    <div className="h-screen overflow-hidden pb-12">
-      <div className="flex items-center justify-between overflow-y-auto">
-        <span>
-          <h1 className="text-3xl font-semibold text-primary">
-            Manage Projects
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Total Projects: {projects.length}
+    <div className="h-screen overflow-hidden p-8 lg:p-10 pb-12">
+      <div className="flex items-center justify-between overflow-y-auto pb-6">
+        <div>
+          <span className="flex items-center gap-2">
+            <button className="flex items-center gap-3 text-xl lg:hidden py-2" onClick={handleOpenSidebar}>
+                <Menu className="w-6 h-6" />
+              </button>
+            <h1 className="text-xl lg:text-3xl font-semibold text-primary">
+              Manage Projects
+            </h1>
+          </span>
+      
+          <p className="text-xs lg:text-lg text-muted-foreground">
+          Total Projects: {projects.length}
           </p>
-        </span>
+        </div>
         <Button onClick={() => handleAddItem()} className="gap-2">
           <PlusCircle className="w-4 h-4" />
           Add Project
         </Button>
       </div>{" "}
-      <div className="space-y-8 h-full overflow-y-auto pr-4 pb-18 no-scrollbar">
+      <div className="space-y-8 h-full overflow-y-auto pb-18 no-scrollbar">
+        {projects.length > 0 ? (
         <div className="my-6 space-y-4">
           {projects.map((project) => (
             <ProjectCard
@@ -205,6 +216,13 @@ export default function ManageProject() {
             />
           ))}
         </div>
+        ) : (
+          <div className="my-40 space-y-1 text-center">
+            <Ghost className="w-12 h-12 mx-auto" />
+            <h1 className="text-2xl font-semibold text-primary">No Projects Yet</h1>
+            <p className="text-muted-foreground">Add a project to get started</p>
+          </div>
+        )}
       </div>
       {isAddProjectModalOpen && (
         <AddProjectModal
