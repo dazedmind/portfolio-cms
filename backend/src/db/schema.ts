@@ -25,6 +25,7 @@ export const profileTable = pgTable("profile", {
   title: varchar({ length: 255 }).notNull(),
   email: varchar({ length: 255 }).notNull(),
   access_key: varchar({ length: 255 }).notNull(),
+  api_key: varchar({ length: 255 }).unique().notNull(),
   image: varchar({ length: 255 }),
   about: text().notNull(),
   github: varchar({ length: 255 }),

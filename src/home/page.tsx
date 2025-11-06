@@ -5,6 +5,7 @@ import ManageProfile from "./manage-profile/ManageProfile";
 import ManageProjects from "./manage-project/ManageProject";
 import ManageEmployment from "./manage-employment/ManageEmployment";
 import { X } from "lucide-react";
+import ManageAccess from "./manage-access/ManageAccess";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState("manage-profile");
@@ -78,6 +79,9 @@ export default function HomePage() {
           )}
           {activeTab === "manage-employment" && (
             <ManageEmployment handleOpenSidebar={handleOpenSidebar} />
+          )}
+          {activeTab === "manage-access" && (
+            <ManageAccess handleOpenSidebar={handleOpenSidebar} />
           )}
         </div>
       </main>

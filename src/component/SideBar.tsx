@@ -8,6 +8,7 @@ import {
 import agfxLogo from "../assets/agfx-logo.png";
 import {
   Briefcase,
+  Key,
   LogOut,
   Moon,
   Rocket,
@@ -151,6 +152,13 @@ export default function SideBar({
           >
             <Briefcase className="w-4 h-4" />
             <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>Manage Employment</span>
+          </button>
+          <button
+            onClick={() => handleTabChange("manage-access")}
+            className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-access" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
+          >
+            <Key className="w-4 h-4" />
+            <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>Manage Access</span>
           </button>
         </div>
 

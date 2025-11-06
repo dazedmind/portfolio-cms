@@ -5,6 +5,7 @@ import profileRoutes from './routes/profile.js';
 import { loginRoute } from './controllers/auth.controller.js';
 import projectRoutes from './routes/project.js';
 import skillsRoutes from './routes/skills.js';
+import apiKeyRoutes from './routes/apiKey.js';
 import employmentRoutes from './routes/employment.js';
 
 // Load environment variables
@@ -44,6 +45,8 @@ app.use('/api/project', projectRoutes);
 app.use('/api/skills', skillsRoutes);
 
 app.use('/api/employment', employmentRoutes);
+
+app.use('/api/key', apiKeyRoutes);
 
 // Example protected route using auth middleware
 app.get('/api/profile', authMiddleware, (req: Request, res: Response) => {
