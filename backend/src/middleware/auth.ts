@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '@/lib/auth';
-import type { JwtPayload } from '@/lib/auth';
+// Do not use full JwtPayload on req.user to avoid leaking keys
 import { db } from '@/db/database';
 import { profileTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload & { profileId?: number };
+      user?: { profileId: number; email: string; name: string };
     }
   }
 }
@@ -41,16 +41,17 @@ export async function authMiddleware(
     // 1️⃣ Try verifying JWT first
     try {
       const decoded = verifyToken(token);
-      req.user = decoded;
+      // Sanitize: never expose keys on req.user
+      req.user = { profileId: decoded.profileId, email: decoded.email, name: decoded.name };
       next();
       return;
     } catch {
       // Not a JWT → continue to API key validation
     }
 
-    // 2️⃣ Try validating API key
+    // 2️⃣ Try validating API key (read-only access)
     const result = await db
-      .select({ id: profileTable.id, email: profileTable.email, name: profileTable.name, access_key: profileTable.access_key })
+      .select({ id: profileTable.id, email: profileTable.email, name: profileTable.name })
       .from(profileTable)
       .where(eq(profileTable.api_key, token))
       .limit(1);
@@ -60,8 +61,14 @@ export async function authMiddleware(
       return;
     }
 
-    // Attach profileId to request for downstream routes
-    req.user = { profileId: result[0].id, email: result[0].email, name: result[0].name, accessKey: result[0].access_key };
+    // Enforce read-only for API key usage
+    if (req.method !== 'GET') {
+      res.status(403).json({ error: 'API key is read-only. Only GET requests are allowed.' });
+      return;
+    }
+
+    // Attach sanitized user (no keys)
+    req.user = { profileId: result[0].id, email: result[0].email, name: result[0].name };
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);

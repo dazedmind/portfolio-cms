@@ -29,14 +29,6 @@ export async function loginRoute(req: Request, res: Response): Promise<void> {
             .where(eq(profileTable.access_key, accessKey))
             .limit(1);
 
-        if (profiles.length === 0) {
-            profiles = await db
-                .select()
-                .from(profileTable)
-                .where(eq(profileTable.api_key, accessKey))
-                .limit(1);
-        }
-
         // Check if profile exists
         if (profiles.length === 0) {
             res.status(401).json({ error: "Invalid access key" });
