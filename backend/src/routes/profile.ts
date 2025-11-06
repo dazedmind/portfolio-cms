@@ -9,7 +9,22 @@ const router = Router();
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const profile = await db.select().from(profileTable).where(eq(profileTable.id, id)).limit(1);
+    const profile = await db
+      .select({
+        id: profileTable.id,
+        name: profileTable.name,
+        title: profileTable.title,
+        email: profileTable.email,
+        image: profileTable.image,
+        about: profileTable.about,
+        github: profileTable.github,
+        linkedin: profileTable.linkedin,
+        behance: profileTable.behance,
+        facebook: profileTable.facebook,
+      })
+      .from(profileTable)
+      .where(eq(profileTable.id, id))
+      .limit(1);
     if (profile.length === 0) {
       return res.status(404).json({ error: "Profile not found" });
     }
@@ -29,7 +44,18 @@ router.put("/:id", authMiddleware, async (req, res) => {
       .update(profileTable)
       .set({ name, title, email, image, about, github, linkedin, behance, facebook })
       .where(eq(profileTable.id, id))
-      .returning();
+      .returning({
+        id: profileTable.id,
+        name: profileTable.name,
+        title: profileTable.title,
+        email: profileTable.email,
+        image: profileTable.image,
+        about: profileTable.about,
+        github: profileTable.github,
+        linkedin: profileTable.linkedin,
+        behance: profileTable.behance,
+        facebook: profileTable.facebook,
+      });
     if (profile.length === 0) {
       return res.status(404).json({ error: "Profile not found" });
     }
