@@ -10,7 +10,6 @@ interface ManageProjectProps {
   handleOpenSidebar: () => void;
 }
 export default function ManageProject({ handleOpenSidebar }: ManageProjectProps) {
-  // const [profileId, setProfileId] = useState<number>(0);
   const [projects, setProjects] = useState<Project[]>([]);
   // const [imagePreview, setImagePreview] = useState<string>("");
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
@@ -33,6 +32,31 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     type: string;
   }
 
+  const decodeJwt = <T,>(token: string): T | null => {
+    try {
+      const payload = token.split(".")[1];
+      if (!payload) return null;
+      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=");
+      const json = atob(padded);
+      return JSON.parse(json) as T;
+    } catch {
+      return null;
+    }
+  };
+
+
+  const getProfileId = () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return;
+    }
+    const payload = decodeJwt<{ profileId?: number }>(token);
+    return payload?.profileId;
+  };
+
+  const profileId = getProfileId();
+
   const fetchProjects = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -40,7 +64,7 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/project`, {
+      const response = await fetch(`${API_BASE_URL}/api/project/${profileId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

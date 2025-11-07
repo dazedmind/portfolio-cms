@@ -43,19 +43,19 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // Get current user's projects
-router.get("/", authMiddleware, async (req, res) => {
-  try {
-    const userId = (req as any).user?.profileId;
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    const projects = await db.select().from(projectsTable).where(eq(projectsTable.user_id, userId));
-    res.json(projects);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+// router.get("/", authMiddleware, async (req, res) => {
+//   try {
+//     const userId = (req as any).user?.profileId;
+//     if (!userId) {
+//       return res.status(401).json({ error: "Unauthorized" });
+//     }
+//     const projects = await db.select().from(projectsTable).where(eq(projectsTable.user_id, userId));
+//     res.json(projects);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 router.get("/:id", authMiddleware, async (req, res) => {
   try {
