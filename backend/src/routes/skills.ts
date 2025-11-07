@@ -31,7 +31,6 @@ router.post("/", authMiddleware, async (req, res) => {
 
     const [created] = await db.insert(skillsTable).values({
       name: skillName,
-      icon: iconName,
       category: skillCategory,
       user_id: userId,
     }).returning();

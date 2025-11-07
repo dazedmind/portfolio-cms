@@ -14,7 +14,6 @@ export const projectsTable = pgTable("projects", {
 export const skillsTable = pgTable("skills", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  icon: varchar({ length: 255 }).notNull(),
   category: varchar({ length: 255 }).notNull(),
   user_id: integer().references(() => profileTable.id).notNull(),
 });
@@ -42,5 +41,11 @@ export const employmentsTable = pgTable("employments", {
   startDate: date().notNull(),
   endDate: date(),
   isActive: boolean().notNull().default(false),
+  user_id: integer().references(() => profileTable.id).notNull(),
+});
+
+export const systemPromptsTable = pgTable("system_prompts", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  prompt: text().notNull(),
   user_id: integer().references(() => profileTable.id).notNull(),
 });

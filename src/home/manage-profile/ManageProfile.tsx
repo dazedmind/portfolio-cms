@@ -55,7 +55,6 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
   const [isAddSkillModalOpen, setIsAddSkillModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     skillName: "",
-    iconName: "",
     skillCategory: "",
   });
   // Decode JWT (base64url) to extract payload
@@ -225,7 +224,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
 
   const handleAddSkill = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (formData.skillName === "" || formData.iconName === "" || formData.skillCategory === "") {
+    if (formData.skillName === "" || formData.skillCategory === "") {
       toast.error("Please fill all fields");
       return;
     }
@@ -243,7 +242,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
       if (res.ok) {
         toast.success("Skill added successfully");
         setIsAddSkillModalOpen(false);
-        setFormData({ skillName: "", iconName: "", skillCategory: "" });
+        setFormData({ skillName: "", skillCategory: "" });
         // Refresh skills list immediately
         fetchSkills(false);
       } else {

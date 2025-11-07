@@ -17,6 +17,7 @@ import {
   Sun,
   User,
   UserRoundPen,
+  Brain,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -159,6 +160,13 @@ export default function SideBar({
           >
             <Key className="w-4 h-4" />
             <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>Manage Access</span>
+          </button>
+          <button
+            onClick={() => handleTabChange("manage-prompt")}
+            className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-prompt" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
+          >
+            <Brain className="w-4 h-4" />
+            <span className={`truncate transition-all duration-300 ${isSidebarOpen ? 'block w-auto' : 'hidden w-0'}`}>Manage Prompt</span>
           </button>
         </div>
 

@@ -4,45 +4,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState, useEffect } from "react";
 
 // Popular tech stack icon names
-const iconOptions = [
-  { value: "react", label: "React" },
-  { value: "javascript", label: "JavaScript" },
-  { value: "typescript", label: "TypeScript" },
-  { value: "nodejs", label: "Node.js" },
-  { value: "python", label: "Python" },
-  { value: "java", label: "Java" },
+const skillOptions = [
+  { value: "React", label: "React" },
+  { value: "JavaScript", label: "JavaScript" },
+  { value: "TypeScript", label: "TypeScript" },
+  { value: "Node.js", label: "Node.js" },
+  { value: "Python", label: "Python" },
+  { value: "Java", label: "Java" },
   { value: "html5", label: "HTML5" },
-  { value: "css3", label: "CSS3" },
-  { value: "vue", label: "Vue.js" },
-  { value: "angular", label: "Angular" },
-  { value: "nextjs", label: "Next.js" },
-  { value: "express", label: "Express" },
-  { value: "mongodb", label: "MongoDB" },
-  { value: "postgresql", label: "PostgreSQL" },
-  { value: "mysql", label: "MySQL" },
-  { value: "redis", label: "Redis" },
-  { value: "docker", label: "Docker" },
-  { value: "aws", label: "AWS" },
-  { value: "git", label: "Git" },
-  { value: "github", label: "GitHub" },
-  { value: "gitlab", label: "GitLab" },
-  { value: "figma", label: "Figma" },
-  { value: "adobe-xd", label: "Adobe XD" },
-  { value: "photoshop", label: "Photoshop" },
-  { value: "illustrator", label: "Illustrator" },
-  { value: "tailwindcss", label: "Tailwind CSS" },
-  { value: "bootstrap", label: "Bootstrap" },
-  { value: "sass", label: "Sass" },
-  { value: "less", label: "Less" },
-  { value: "webpack", label: "Webpack" },
-  { value: "vite", label: "Vite" },
-  { value: "npm", label: "NPM" },
-  { value: "yarn", label: "Yarn" },
-  { value: "firebase", label: "Firebase" },
-  { value: "graphql", label: "GraphQL" },
-  { value: "rest", label: "REST API" },
-  { value: "jest", label: "Jest" },
-  { value: "cypress", label: "Cypress" },
+  { value: "CSS3", label: "CSS3" },
+  { value: "Vue.js", label: "Vue.js" },
+  { value: "Angular", label: "Angular" },
+  { value: "Next.js", label: "Next.js" },
+  { value: "Express", label: "Express" },
+  { value: "MongoDB", label: "MongoDB" },
+  { value: "PostgreSQL", label: "PostgreSQL" },
+  { value: "MySQL", label: "MySQL" },
+  { value: "Redis", label: "Redis" },
+  { value: "Docker", label: "Docker" },
+  { value: "AWS", label: "AWS" },
+  { value: "Git", label: "Git" },
+  { value: "GitHub", label: "GitHub" },
+  { value: "GitLab", label: "GitLab" },
+  { value: "Figma", label: "Figma" },
+  { value: "Adobe XD", label: "Adobe XD" },
+  { value: "Photoshop", label: "Photoshop" },
+  { value: "Illustrator", label: "Illustrator" },
+  { value: "Tailwind CSS", label: "Tailwind CSS" },
+  { value: "Bootstrap", label: "Bootstrap" },
+  { value: "Sass", label: "Sass" },
+  { value: "Less", label: "Less" },
+  { value: "Webpack", label: "Webpack" },
+  { value: "Vite", label: "Vite" },
+  { value: "npm", label: "npm" },
+  { value: "yarn", label: "yarn" },
+  { value: "Firebase", label: "Firebase" },
+  { value: "GraphQL", label: "GraphQL" },
+  { value: "REST API", label: "REST API" },
+  { value: "Jest", label: "Jest" },
+  { value: "Cypress", label: "Cypress" },
   { value: "custom", label: "Custom (Enter manually)" },
 ];
 
@@ -51,21 +51,21 @@ export default function AddSkillModal({ onSubmit, onClose, formData, setFormData
     const [isClosing, setIsClosing] = useState(false);
     // Reset custom input state when formData is reset or iconName is cleared
     useEffect(() => {
-      if (!formData.iconName) {
+      if (!formData.skillName) {
         setShowCustomInput(false);
-      } else if (!iconOptions.some(icon => icon.value === formData.iconName)) {
+      } else if (!skillOptions.some(skill => skill.value === formData.skillName)) {
         // If iconName is set but not in predefined options, show custom input
         setShowCustomInput(true);
       }
-    }, [formData.iconName]);
+    }, [formData.skillName]);
 
     const handleIconChange = (value: string) => {
       if (value === "custom") {
         setShowCustomInput(true);
-        setFormData({ ...formData, iconName: "" });
+        setFormData({ ...formData, skillName: "" });
       } else {
         setShowCustomInput(false);
-        setFormData({ ...formData, iconName: value });
+        setFormData({ ...formData, skillName: value });
       }
     };
 
@@ -86,49 +86,33 @@ export default function AddSkillModal({ onSubmit, onClose, formData, setFormData
                 <div className="space-y-2 w-full">
                   <span className="flex flex-col gap-2">
                     <label
-                      htmlFor="skillName"
-                      className="text-sm font-medium text-muted-foreground"
-                    >
-                      Skill Name
-                    </label>
-                    <Input
-                      id="skillName"
-                      placeholder="Enter Skill Name"
-                      type="text"
-                      value={formData.skillName}
-                      onChange={(e) => setFormData({ ...formData, skillName: e.target.value })}
-                    />
-                  </span>
-
-                  <span className="flex flex-col gap-2">
-                    <label
                       htmlFor="iconName"
                       className="text-sm font-medium text-muted-foreground"
                     >
-                      Icon Name
+                      Choose a Skill
                     </label>
                     <Select 
-                      value={formData.iconName && !showCustomInput ? formData.iconName : showCustomInput ? "custom" : undefined}
+                      value={formData.skillName && !showCustomInput ? formData.skillName : showCustomInput ? "custom" : undefined}
                       onValueChange={handleIconChange}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select or search for an icon" />
                       </SelectTrigger>
                       <SelectContent className="max-h-[300px]">
-                        {iconOptions.map((icon) => (
-                          <SelectItem key={icon.value} value={icon.value}>
-                            {icon.label}
+                        {skillOptions.map((skill) => (
+                          <SelectItem key={skill.value} value={skill.value}>
+                            {skill.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {showCustomInput && (
                       <Input
-                        id="iconName"
-                        placeholder="Enter custom icon name (e.g., 'my-icon')"
+                        id="skillName"
+                        placeholder="Enter custom skill name (e.g., 'React')"
                         type="text"
-                        value={formData.iconName}
-                        onChange={(e) => setFormData({ ...formData, iconName: e.target.value })}
+                        value={formData.skillName}
+                        onChange={(e) => setFormData({ ...formData, skillName: e.target.value })}
                         className="mt-2"
                       />
                     )}

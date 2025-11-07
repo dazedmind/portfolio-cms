@@ -7,6 +7,7 @@ import projectRoutes from './routes/project.js';
 import skillsRoutes from './routes/skills.js';
 import apiKeyRoutes from './routes/apiKey.js';
 import employmentRoutes from './routes/employment.js';
+import promptRoutes from './routes/prompt.js';
 
 // Load environment variables
 dotenv.config();
@@ -47,6 +48,8 @@ app.use('/api/skills', skillsRoutes);
 app.use('/api/employment', employmentRoutes);
 
 app.use('/api/key', apiKeyRoutes);
+
+app.use('/api/prompt', promptRoutes);
 
 // Example protected route using auth middleware
 app.get('/api/profile', authMiddleware, (req: Request, res: Response) => {

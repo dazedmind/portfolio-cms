@@ -57,6 +57,20 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (!id) {
+      return res.status(401).json({ error: "Unauthorized, please login again" });
+    }
+    const project = await db.select().from(projectsTable).where(eq(projectsTable.user_id, id));
+    return res.status(200).json(project);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
