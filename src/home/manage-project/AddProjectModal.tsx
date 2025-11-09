@@ -2,14 +2,33 @@ import { Button } from "@/component/ui/button";
 import { Input } from "@/component/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/component/ui/select";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function AddProjectModal({ onSubmit, onClose, formData, setFormData }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, onClose: () => void, formData: any, setFormData: (data: any) => void }) {
+export default function AddProjectModal({ onSubmit, onClose, formData, setFormData, isEditing, editingFormData }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, onClose: () => void, formData: any, setFormData: (data: any) => void, isEditing: boolean, editingFormData: any }) {
+
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isClosing, setIsClosing] = useState(false);
 
+  // Set initial preview for editing mode
+  useEffect(() => {
+    if (isEditing && editingFormData.projectImage) {
+      setImagePreview(editingFormData.projectImage);
+    } else {
+      setImagePreview(""); // Clear preview when not editing
+    }
+  }, [isEditing, editingFormData.projectImage]);
+
+  // Reset preview when modal closes
+  useEffect(() => {
+    return () => {
+      setImagePreview("");
+    };
+  }, []);
+
   const requestClose = () => {
     setIsClosing(true);
+    // Clear preview
+    setImagePreview("");
     // Match the CSS animation duration (300ms)
     setTimeout(() => {
       onClose();
@@ -35,15 +54,17 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      // Update profile with file URL (in real app, upload to server first)
-      setFormData((prev: any) => ({ ...prev, image: file.name } as any));
+      // Store the actual File object for S3 upload
+      setFormData((prev: any) => ({ ...prev, projectImageFile: file }));
     }
   };
   
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className={`bg-card border border-border rounded-lg space-y-4 p-6 w-2/4 h-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
-          <h1 className="text-2xl font-semibold text-primary mb-2">Add Project</h1>
+          <h1 className="text-2xl font-semibold text-primary mb-2">
+            {isEditing ? "Edit Project" : "Add Project"}
+          </h1>
 
             <form onSubmit={onSubmit}>
               <div className="flex gap-4">
@@ -58,11 +79,16 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                         <div className="flex flex-col gap-1 items-center justify-center">
                           <h1 className="text-lg font-semibold">Upload Image</h1>
                           <p className="text-sm text-muted-foreground">Drag and drop or click to browse</p>
-                          <p className="text-sm text-muted-foreground">PDF only • Max 30MB</p>
+                          <p className="text-sm text-muted-foreground">Images only • Max 5MB</p>
                         </div>
                       )}
                     </div>
-                    <input id="projectImage" type="file" name="projectImage" onChange={handleImageChange} 
+                    <input 
+                      id="projectImage" 
+                      type="file" 
+                      name="projectImage" 
+                      accept="image/*"
+                      onChange={handleImageChange} 
                       className="p-2 border border-border rounded-md w-56 h-36 hidden"
                     />
                   </label>
@@ -157,7 +183,7 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                   variant="default"
                   type="submit"
                 >
-                  Add Project
+                  {isEditing ? "Update Project" : "Add Project"}
                 </Button>
               </span>
             </form>

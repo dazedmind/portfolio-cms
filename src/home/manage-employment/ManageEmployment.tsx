@@ -32,6 +32,17 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
     isActive: "",
   });
   const [employments, setEmployments] = useState<Employment[]>([]);
+  const [isEditEmploymentModalOpen, setIsEditEmploymentModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    company: "",
+    position: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    isActive: "",
+  });
 
   const fetchEmployments = async () => {
     const token = localStorage.getItem("accessToken");
@@ -64,7 +75,9 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
 
   const handleAddEmployment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
+    
+    console.log("📤 Submitting employment data:", formData);
+    console.log("📅 Date formats - Start:", formData.startDate, "End:", formData.endDate);
 
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -82,16 +95,12 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
     const data = await response.json();
     if (response.ok) {
       toast.success("Employment added successfully");
+      
+      // Close modal and reset state
+      handleCloseModal();
+      
+      // Refresh employments list
       fetchEmployments();
-      setIsAddEmploymentModalOpen(false);
-      setFormData({
-        company: "",
-        position: "",
-        description: "",
-        startDate: "",
-        endDate: "",
-        isActive: "",
-      });
     } else {
       toast.error("Failed to add employment");
       toast.error(data.error);
@@ -99,8 +108,23 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
   };
 
   const handleCloseModal = () => {
+    setIsEditEmploymentModalOpen(false);
     setIsAddEmploymentModalOpen(false);
+    setIsEditing(false);
+    setEditingId(null);
+    
+    // Reset add form data
     setFormData({
+      company: "",
+      position: "",
+      description: "",
+      startDate: "",
+      endDate: "",
+      isActive: "",
+    });
+    
+    // Reset edit form data
+    setEditFormData({
       company: "",
       position: "",
       description: "",
@@ -110,9 +134,53 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
     });
   };
 
-  const handleEdit = (id: number) => {
-    console.log("Edit Employment", id);
+  const handleEditButtonClick = (id: number) => {
+    setIsEditEmploymentModalOpen(true);
+    setIsEditing(true);
+    setEditingId(id);
+    setEditFormData({
+      company: employments.find((employment) => employment.id === id)?.company || "",
+      position: employments.find((employment) => employment.id === id)?.position || "",
+      description: employments.find((employment) => employment.id === id)?.description || "",
+      startDate: employments.find((employment) => employment.id === id)?.startDate || "",
+      endDate: employments.find((employment) => employment.id === id)?.endDate || "",
+      isActive: employments.find((employment) => employment.id === id)?.isActive || false,
+    } as any);
   };
+
+  const handleEditEmployment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    console.log("📤 Submitting edited employment data:", editFormData);
+    console.log("📅 Date formats - Start:", editFormData.startDate, "End:", editFormData.endDate);
+    
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+    const res = await fetch(`${API_BASE_URL}/api/employment/${editingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(editFormData),
+    });
+    if (res.ok) {
+      toast.success("Employment edited successfully");
+      
+      // Close modal and reset state
+      handleCloseModal();
+      
+      // Refresh employments list
+      fetchEmployments();
+    } else {
+      toast.error("Failed to edit employment");
+      const data = await res.json();
+      toast.error(data.error);
+    }
+  }
 
   const handleDelete = async (id: number) => {
     const token = localStorage.getItem("accessToken");
@@ -178,7 +246,7 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
                   startDate={new Date(employment.startDate)}
                   endDate={new Date(employment.endDate)}
                   isActive={employment.isActive}
-                  handleEdit={(id: number) => handleEdit(id)}
+                  handleEdit={(id: number) => handleEditButtonClick(id)}
                   handleDelete={(id: number) => handleDelete(id)}
                 />
               ))}
@@ -202,6 +270,16 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
           onClose={handleCloseModal}
           formData={formData as unknown as Employment}
           setFormData={(data: any) => setFormData(data)}
+          isEditing={isEditing}
+        />
+      )}
+      {isEditEmploymentModalOpen && (
+        <AddEmploymentModal
+          onSubmit={handleEditEmployment}
+          onClose={handleCloseModal}
+          formData={editFormData as unknown as Employment}
+          setFormData={(data: any) => setEditFormData(data)}
+          isEditing={isEditing}
         />
       )}
       <Toaster />

@@ -27,20 +27,19 @@ export default function ProjectCard({
 
   return (
     <div className="flex flex-col lg:flex-row border border-border bg-card rounded-lg p-6 gap-4 justify-between w-full">
-      <div className="flex flex-col lg:flex-row gap-4 w-auto">
-        <span>
-          {image === '' ? 
-            <div>
-              <div className="w-auto lg:w-56 h-36 lg:h-36 rounded-lg bg-muted border-2 border-border flex items-center justify-center">
-                <ImageIcon className="w-8 h-8" />
-              </div>
-            </div> 
-            : 
-            <img src={image} alt="Project Image" className="w-56 h-36 rounded-lg" />
-          }
+      <div className="flex flex-col md:flex-row gap-4 w-full">
+        <span className="aspect-video w-100 h-auto object-cover flex items-center justify-center bg-muted border-2 border-border rounded-lg overflow-hidden">
+        {image ? (
+            <img
+              src={image}
+              alt="Project Image"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <ImageIcon className="w-10 h-10 text-muted-foreground" />
+          )}
         </span>
-
-        <span className="flex flex-col">
+        <span className="flex flex-col w-full">
           <p className="text-2xl font-bold">{name}</p>
           <p className="text-md italic leading-tight text-muted-foreground">{description}</p>
           <span className="mt-2">

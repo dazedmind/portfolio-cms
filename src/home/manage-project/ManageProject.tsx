@@ -5,6 +5,7 @@ import { Ghost, Menu, PlusCircle } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import AddProjectModal from "./AddProjectModal";
 import { API_BASE_URL } from "@/lib/api";
+import { uploadFileViaBackend, deleteFileViaBackend } from "@/lib/uploadHelper";
 
 interface ManageProjectProps {
   handleOpenSidebar: () => void;
@@ -13,14 +14,41 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
   const [projects, setProjects] = useState<Project[]>([]);
   // const [imagePreview, setImagePreview] = useState<string>("");
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
+  const [formData, setFormData] = useState<{
+    projectName: string;
+    projectDescription: string;
+    projectLink: string;
+    projectTechnologies: string;
+    projectType: string;
+    projectImage: string;
+    projectImageFile?: File;
+  }>({
     projectName: "",
     projectDescription: "",
     projectLink: "",
     projectTechnologies: "",
     projectType: "",
+    projectImage: "",
   });
-  //   const [projectImage, setProjectImage] = useState<File | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [editingFormData, setEditingFormData] = useState<{
+    projectName: string;
+    projectDescription: string;
+    projectLink: string;
+    projectTechnologies: string[] | never[];
+    projectType: string;
+    projectImage: string;
+    projectImageFile?: File;
+  }>({
+    projectName: "",
+    projectDescription: "",
+    projectLink: "",
+    projectTechnologies: [] as never[],
+    projectType: "",
+    projectImage: "",
+  });
 
   interface Project {
     id: number;
@@ -32,31 +60,6 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     type: string;
   }
 
-  const decodeJwt = <T,>(token: string): T | null => {
-    try {
-      const payload = token.split(".")[1];
-      if (!payload) return null;
-      const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-      const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=");
-      const json = atob(padded);
-      return JSON.parse(json) as T;
-    } catch {
-      return null;
-    }
-  };
-
-
-  const getProfileId = () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      return;
-    }
-    const payload = decodeJwt<{ profileId?: number }>(token);
-    return payload?.profileId;
-  };
-
-  const profileId = getProfileId();
-
   const fetchProjects = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -64,7 +67,7 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       return;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/project/${profileId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/project`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,23 +95,62 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
 
   const handleCloseModal = () => {
     setIsAddProjectModalOpen(false);
+    setIsEditProjectModalOpen(false);
+    setEditingProjectId(null);
+    setIsEditing(false);
+    
+    // Reset add form data
     setFormData({
       projectName: "",
       projectDescription: "",
       projectLink: "",
       projectTechnologies: "",
       projectType: "",
+      projectImage: "",
+      projectImageFile: undefined,
+    });
+    
+    // Reset edit form data
+    setEditingFormData({
+      projectName: "",
+      projectDescription: "",
+      projectLink: "",
+      projectTechnologies: [] as never[],
+      projectType: "",
+      projectImage: "",
+      projectImageFile: undefined,
     });
   };
 
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    let uploadedImageUrl = "";
+    
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         toast.error("Not authenticated");
         return;
       }
+
+      // Upload image via backend if a file is selected
+      if (formData.projectImageFile) {
+        toast.loading("Uploading image...");
+        uploadedImageUrl = await uploadFileViaBackend(formData.projectImageFile, "project");
+        toast.dismiss();
+      }
+
+      // Prepare data for backend (backend expects 'image' not 'projectImage')
+      const projectData = {
+        projectName: formData.projectName,
+        projectDescription: formData.projectDescription,
+        projectLink: formData.projectLink,
+        projectTechnologies: formData.projectTechnologies,
+        projectType: formData.projectType,
+        image: uploadedImageUrl, // Changed from projectImage to image
+      };
+
       const response = await fetch(`${API_BASE_URL}/api/project`, {
         method: "POST",
         headers: {
@@ -116,22 +158,22 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(projectData),
       });
+      
       if (response.ok) {
-        const created = await response.json();
         toast.success("Project added successfully");
-        setIsAddProjectModalOpen(false);
-        setProjects((prev) => [...prev, created]);
-        setFormData({
-          projectName: "",
-          projectDescription: "",
-          projectLink: "",
-          projectTechnologies: "",
-          projectType: "",
-        });
+        
+        // Close modal and reset state
+        handleCloseModal();
+        
+        // Refresh projects list
         fetchProjects();
       } else {
+        // If backend fails, delete the uploaded image
+        if (uploadedImageUrl) {
+          await deleteFileViaBackend(uploadedImageUrl);
+        }
         let msg = "Failed to add project";
         try {
           const err = await response.json();
@@ -140,6 +182,14 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
         toast.error(msg);
       }
     } catch (error) {
+      // If any error occurs, delete the uploaded image
+      if (uploadedImageUrl) {
+        try {
+          await deleteFileViaBackend(uploadedImageUrl);
+        } catch (deleteError) {
+          console.error("Error deleting uploaded image:", deleteError);
+        }
+      }
       console.error("Error adding project:", error);
       toast.error("Failed to add project");
     }
@@ -152,13 +202,28 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
         toast.error("Not authenticated");
         return;
       }
+
+      // Find the project to get its image URL
+      const projectToDelete = projects.find((project) => project.id === id);
+      
       const response = await fetch(`${API_BASE_URL}/api/project/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+      
       if (response.ok) {
+        // Delete image from S3 if it exists
+        if (projectToDelete?.image) {
+          try {
+            await deleteFileViaBackend(projectToDelete.image);
+          } catch (s3Error) {
+            console.error("Error deleting image from S3:", s3Error);
+            // Don't fail the whole operation if S3 delete fails
+          }
+        }
+        
         toast.success("Project deleted successfully");
         // Optimistically remove then refresh from server to reflect backend state
         setProjects((prev) => prev.filter((project) => project.id !== id));
@@ -173,28 +238,97 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     }
   };
 
-  const handleEdit = async (id: number) => {
+  const handleEditButtonClick = (id: number) => {
+    const projectToEdit = projects.find((project) => project.id === id);
+    if (!projectToEdit) return;
+  
+    setEditingProjectId(id);
+    setIsEditing(true);
+    setIsEditProjectModalOpen(true);
+  
+    setEditingFormData({
+      projectName: projectToEdit.name,
+      projectDescription: projectToEdit.description,
+      projectLink: projectToEdit.link,
+      projectTechnologies: projectToEdit.technologies as unknown as never[],
+      projectType: projectToEdit.type,
+      projectImage: projectToEdit.image,
+    } as any);
+  };
+
+  const handleEditProject = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    let newImageUrl = editingFormData.projectImage;
+    const oldImageUrl = projects.find((p) => p.id === editingProjectId)?.image;
+    
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         toast.error("Not authenticated");
         return;
       }
-      const response = await fetch(`${API_BASE_URL}/api/project/${id}`, {
+
+      // Upload new image via backend if a new file is selected
+      if (editingFormData.projectImageFile) {
+        toast.loading("Uploading image...");
+        newImageUrl = await uploadFileViaBackend(editingFormData.projectImageFile, "project");
+        toast.dismiss();
+      }
+
+      // Prepare data for backend (backend expects 'image' not 'projectImage')
+      const projectData = {
+        projectName: editingFormData.projectName,
+        projectDescription: editingFormData.projectDescription,
+        projectLink: editingFormData.projectLink,
+        projectTechnologies: editingFormData.projectTechnologies,
+        projectType: editingFormData.projectType,
+        image: newImageUrl, // Changed from projectImage to image
+      };
+
+      const response = await fetch(`${API_BASE_URL}/api/project/${editingProjectId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(projectData),
       });
+      
       if (response.ok) {
+        // Delete old image from S3 if a new image was uploaded
+        if (editingFormData.projectImageFile && oldImageUrl && oldImageUrl !== newImageUrl) {
+          try {
+            await deleteFileViaBackend(oldImageUrl);
+          } catch (s3Error) {
+            console.error("Error deleting old image from S3:", s3Error);
+            // Don't fail the whole operation if S3 delete fails
+          }
+        }
+        
         toast.success("Project edited successfully");
-        setProjects((prev) => prev.map((project) => project.id === id ? { ...project, ...formData } : project));
+        
+        // Close modal and reset state
+        handleCloseModal();
+        
+        // Refresh projects list
+        fetchProjects();
       } else {
+        // If backend fails and we uploaded a new image, delete it
+        if (editingFormData.projectImageFile && newImageUrl !== oldImageUrl) {
+          await deleteFileViaBackend(newImageUrl);
+        }
         toast.error("Failed to edit project");
       }
     } catch (error) {
+      // If any error occurs and we uploaded a new image, delete it
+      if (editingFormData.projectImageFile && newImageUrl && newImageUrl !== oldImageUrl) {
+        try {
+          await deleteFileViaBackend(newImageUrl);
+        } catch (deleteError) {
+          console.error("Error deleting uploaded image:", deleteError);
+        }
+      }
       console.error("Error editing project:", error);
       toast.error("Failed to edit project");
     }
@@ -230,7 +364,7 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
               key={project.id}
               image={project.image}
               id={project.id}
-              handleEdit={(id: number) => handleEdit(id)}
+              handleEdit={(id: number) => handleEditButtonClick(id)}
               handleDelete={(id: number) => handleDelete(id)}
               name={project.name}
               description={project.description}
@@ -254,8 +388,21 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
           onClose={handleCloseModal}
           formData={formData}
           setFormData={setFormData}
+          isEditing={isEditing}
+          editingFormData={editingFormData}
         />
       )}
+      {isEditProjectModalOpen && (
+          <AddProjectModal
+            onSubmit={handleEditProject}
+            onClose={handleCloseModal}
+            formData={editingFormData}
+            setFormData={(data: any) => setEditingFormData(data)}
+            isEditing={isEditing}
+            editingFormData={editingFormData}
+          />
+        )
+      }
       <Toaster />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
 import { API_BASE_URL } from "@/lib/api";
-import { Menu } from "lucide-react";
+import { Menu, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/component/ui/button";
 // import { decodeToken } from "@/lib/auth";
 
@@ -40,6 +40,8 @@ export default function ManagePrompt({
 
   const profileId = getProfileId();
 
+  const [hasPrompt, setHasPrompt] = useState(false);
+
   const fetchPrompt = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -57,6 +59,9 @@ export default function ManagePrompt({
       if (res.ok) {
         const data = await res.json();
         setPrompt(data[0].prompt);
+        setHasPrompt(true);
+      } else {
+        setHasPrompt(false);
       }
     } catch {
       toast.error("Failed to fetch prompt");
@@ -118,6 +123,14 @@ export default function ManagePrompt({
     }
   };
 
+  const handleDeletePrompt = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      toast.error("Not authenticated");
+      return;
+    }
+  };
+
   return (
     <div className="h-screen overflow-hidden">
       <div className="space-y-8 h-full overflow-y-auto p-8 lg:p-10 pb-18 no-scrollbar">
@@ -153,14 +166,21 @@ export default function ManagePrompt({
               ></textarea>
 
               <span className="flex gap-2">
-                <Button variant="default" type="submit">
+                <Button className="w-fit" variant="default" type="submit" disabled={hasPrompt}>
+                  <Plus className="w-4 h-4" />
                   Add System Prompt
                 </Button>
+                <Button className="w-fit" variant="outline" type="button" onClick={handleUpdatePrompt}>
+                  <Pencil className="w-4 h-4" />
+                  Update System Prompt
+                </Button>
+                <Button className="w-fit" variant="destructive" onClick={handleDeletePrompt}>
+                  <Trash2 className="w-4 h-4" />
+                  Delete System Prompt
+            </Button>
               </span>
             </form>
-            <Button className="w-fit" variant="outline" onClick={handleUpdatePrompt}>
-              Update System Prompt
-            </Button>
+         
           </div>
         </div>
       </div>

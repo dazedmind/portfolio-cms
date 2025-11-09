@@ -20,6 +20,7 @@ import { toast, Toaster } from "sonner";
 import LoadingPage from "@/component/LoadingPage";
 import AddSkillModal from "./AddSkillModal";
 import { API_BASE_URL } from "@/lib/api";
+import { uploadFileViaBackend, deleteFileViaBackend } from "@/lib/uploadHelper";
 
 interface Profile {
   id?: number;
@@ -48,6 +49,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
   const [skills, setSkills] = useState<Skill[]>([]);
   const [profileId, setProfileId] = useState<number>(0);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -186,8 +188,8 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      // Update profile with file URL (in real app, upload to server first)
-      setProfile((prev) => ({ ...prev, image: file.name } as Profile));
+      // Store the file for S3 upload
+      setImageFile(file);
       setHasChanges(true);
     }
   };
@@ -199,22 +201,66 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
 
   const handleSave = async () => {
     setIsSaving(true);
+    
+    let newImageUrl = profile?.image;
+    const oldImageUrl = profile?.image;
+    
     try {
       const token = localStorage.getItem("accessToken");
+      
+      // Upload new image via backend if a file is selected
+      if (imageFile) {
+        toast.loading("Uploading image...");
+        newImageUrl = await uploadFileViaBackend(imageFile, "profile-picture");
+        toast.dismiss();
+      }
+
+      // Prepare updated profile data
+      const updatedProfile = {
+        ...profile,
+        image: newImageUrl,
+      };
+
       const res = await fetch(`${API_BASE_URL}/api/profile/${profileId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(profile),
+        body: JSON.stringify(updatedProfile),
       });
+      
       if (res.ok) {
+        // Delete old image from S3 if a new image was uploaded
+        if (imageFile && oldImageUrl && oldImageUrl !== newImageUrl) {
+          try {
+            await deleteFileViaBackend(oldImageUrl);
+          } catch (s3Error) {
+            console.error("Error deleting old image from S3:", s3Error);
+            // Don't fail the whole operation if S3 delete fails
+          }
+        }
+        
         toast.success("Profile updated successfully");
+        setProfile(updatedProfile as Profile);
+        setImageFile(null);
+        setHasChanges(false);
       } else {
+        // If backend fails and we uploaded a new image, delete it
+        if (imageFile && newImageUrl !== oldImageUrl) {
+          await deleteFileViaBackend(newImageUrl as string);
+        }
         toast.error("Failed to update profile");
       }
     } catch (error) {
+      // If any error occurs and we uploaded a new image, delete it
+      if (imageFile && newImageUrl && newImageUrl !== oldImageUrl) {
+        try {
+          await deleteFileViaBackend(newImageUrl);
+        } catch (deleteError) {
+          console.error("Error deleting uploaded image:", deleteError);
+        }
+      }
       console.error("Error saving profile:", error);
       toast.error("Failed to update profile");
     } finally {

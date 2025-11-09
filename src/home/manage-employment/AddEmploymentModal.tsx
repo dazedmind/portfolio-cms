@@ -11,7 +11,8 @@ import { CalendarIcon } from "lucide-react";
 import { Checkbox } from "@/component/ui/checkbox";
 import { Label } from "@/component/ui/label"
 
-function formatDate(date: Date | undefined) {
+// Format date for display (e.g., "Dec 25, 2025")
+function formatDateDisplay(date: Date | undefined) {
   if (!date) {
     return "";
   }
@@ -22,34 +23,77 @@ function formatDate(date: Date | undefined) {
   });
 }
 
+// Format date for backend (ISO format: "2025-12-25")
+function formatDateForBackend(date: Date | undefined) {
+  if (!date) {
+    return "";
+  }
+  return date.toISOString().split('T')[0];
+}
+
 export default function AddEmploymentModal({
   onSubmit,
   onClose,
   formData,
   setFormData,
+  isEditing,
 }: {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
   formData: any;
   setFormData: (data: any) => void;
+  isEditing: boolean;
 }) {
-  const [date, setDate] = React.useState<Date | undefined>(
-    new Date("2025-06-01")
-  );
-  const [month, setMonth] = React.useState<Date | undefined>(date);
-  const [isActive, setIsActive] = React.useState(false);
+  // Parse date string to Date object
+  const parseDate = (dateString: string): Date | undefined => {
+    if (!dateString) return undefined;
+    const parsed = new Date(dateString);
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  };
+
+  // Initialize dates from formData when editing
+  const initialStartDate = isEditing && formData.startDate 
+    ? parseDate(formData.startDate) 
+    : undefined;
+  
+  const initialEndDate = isEditing && formData.endDate 
+    ? parseDate(formData.endDate) 
+    : undefined;
+
+  const [month, setMonth] = React.useState<Date | undefined>(initialStartDate);
   const [openStartDate, setOpenStartDate] = React.useState(false);
-  const [startDateValue, setStartDateValue] = React.useState<Date | undefined>(undefined);
+  const [startDateValue, setStartDateValue] = React.useState<Date | undefined>(initialStartDate);
   const [openEndDate, setOpenEndDate] = React.useState(false);
-  const [endDateValue, setEndDateValue] = React.useState<Date | undefined>(undefined);
+  const [endDateValue, setEndDateValue] = React.useState<Date | undefined>(initialEndDate);
   const [isClosing, setIsClosing] = useState(false);
 
+  // Initialize formData dates when editing
+  React.useEffect(() => {
+    if (isEditing) {
+      // Update formData with proper date formats if not already set
+      if (initialStartDate && !formData.startDate) {
+        setFormData({
+          ...formData,
+          startDate: formatDateForBackend(initialStartDate),
+        });
+      }
+      if (initialEndDate && !formData.endDate && !formData.isActive) {
+        setFormData({
+          ...formData,
+          endDate: formatDateForBackend(initialEndDate),
+        });
+      }
+    }
+  }, [isEditing]);
+
   const handleCheckboxChange = (checked: boolean) => {
-    setIsActive(checked);
     if (checked) {
       setFormData({ ...formData, isActive: true, endDate: null });
+      setEndDateValue(undefined);
     } else {
-      setFormData({ ...formData, isActive: false, endDate: new Date() });
+      const today = new Date();
+      setFormData({ ...formData, isActive: false, endDate: formatDateForBackend(today) });
+      setEndDateValue(today);
     }
   };
 
@@ -64,7 +108,7 @@ export default function AddEmploymentModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className={`bg-card border border-border rounded-lg space-y-4 p-6 w-120 h-auto max-h-[90vh] overflow-y-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
-        <h1 className="text-2xl font-semibold text-primary">Add Employment</h1>
+        <h1 className="text-2xl font-semibold text-primary">{isEditing ? "Edit Employment" : "Add Employment"}</h1>
         <form onSubmit={onSubmit}>
           <div className="flex gap-4">
             <div className="space-y-2 w-full">
@@ -127,7 +171,7 @@ export default function AddEmploymentModal({
                 ></textarea>
               </span>
               <span className="flex items-center gap-2 my-4">
-                <Checkbox id="isActive" name="isActive" checked={isActive} onCheckedChange={handleCheckboxChange}></Checkbox>
+                <Checkbox id="isActive" name="isActive" checked={formData.isActive} onCheckedChange={handleCheckboxChange}></Checkbox>
                 <Label htmlFor="isActive">I currently work here</Label>
               </span>
 
@@ -148,8 +192,8 @@ export default function AddEmploymentModal({
                     >
                       <CalendarIcon className="size-3.5" />
                       <span className="sr-only">Select date</span>
-                      {formatDate(startDateValue)
-                        ? formatDate(startDateValue)
+                      {formatDateDisplay(startDateValue)
+                        ? formatDateDisplay(startDateValue)
                         : "Select date"}
                     </Button>
                   </PopoverTrigger>
@@ -161,17 +205,16 @@ export default function AddEmploymentModal({
                   >
                     <Calendar
                       mode="single"
-                      selected={date}
+                      selected={startDateValue}
                       captionLayout="dropdown"
                       month={month}
                       onMonthChange={setMonth}
                       onSelect={(date) => {
-                        setDate(date);
                         setStartDateValue(date);
                         setOpenStartDate(false);
                         setFormData({
                           ...formData,
-                          startDate: formatDate(date),
+                          startDate: formatDateForBackend(date),
                         });
                       }}
                     />
@@ -192,11 +235,11 @@ export default function AddEmploymentModal({
                       id="date-picker"
                       variant="outline"
                       className="w-full justify-start font-normal"
-                      disabled={isActive}
+                      disabled={formData.isActive}
                     >
                       <CalendarIcon className="size-3.5" />
-                      {formatDate(endDateValue)
-                        ? formatDate(endDateValue)
+                      {formatDateDisplay(endDateValue)
+                        ? formatDateDisplay(endDateValue)
                         : "Select date"}
                       <span className="sr-only">Select date</span>
                     </Button>
@@ -209,15 +252,17 @@ export default function AddEmploymentModal({
                   >
                     <Calendar
                       mode="single"
-                      selected={date}
+                      selected={endDateValue}
                       captionLayout="dropdown"
                       month={month}
                       onMonthChange={setMonth}
                       onSelect={(date) => {
-                        setDate(date);
                         setEndDateValue(date);
                         setOpenEndDate(false);
-                        setFormData({ ...formData, endDate: formatDate(date) });
+                        setFormData({
+                          ...formData,
+                          endDate: formatDateForBackend(date),
+                        });
                       }}
                     />
                   </PopoverContent>
@@ -232,7 +277,7 @@ export default function AddEmploymentModal({
               Close
             </Button>
             <Button variant="default" type="submit">
-              Add Employment
+              {isEditing ? "Edit Employment" : "Add Employment"}
             </Button>
           </span>
         </form>

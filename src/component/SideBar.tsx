@@ -81,9 +81,6 @@ export default function SideBar({
           },
         });
 
-        console.log("📨 Profile response status:", res.status);
-        console.log("📨 Profile response:", res);
-
         if (res.ok) {
           const data = await res.json();
           setProfile(data);
