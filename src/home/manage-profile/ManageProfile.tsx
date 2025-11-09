@@ -112,8 +112,6 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
             },
           });
 
-          console.log("📨 Profile response status:", res.status);
-
           if (res.ok) {
             const data = await res.json();
             setProfile(data);

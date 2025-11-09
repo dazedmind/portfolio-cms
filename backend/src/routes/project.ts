@@ -50,33 +50,60 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // Get current user's projects
-// router.get("/", authMiddleware, async (req, res) => {
-//   try {
-//     const userId = (req as any).user?.profileId;
-//     if (!userId) {
-//       return res.status(401).json({ error: "Unauthorized" });
-//     }
-//     const projects = await db.select().from(projectsTable).where(eq(projectsTable.user_id, userId));
-//     res.json(projects);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
-router.get(process.env.REQUEST_ORIGIN === "cms-api" ? "/" : "/:id", authMiddleware, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const id = process.env.REQUEST_ORIGIN === "cms-api" ? (req as any).user?.profileId : parseInt(req.params.id);
-    if (!id) {
-      return res.status(401).json({ error: "Unauthorized, please login again" });
-      }
-      const project = await db.select().from(projectsTable).where(eq(projectsTable.user_id, id)).orderBy(desc(projectsTable.id));
-      return res.status(200).json(project);
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Internal server error" });
+    const userId = (req as any).user?.profileId;
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
-  });
+
+    const projects = await db
+      .select()
+      .from(projectsTable)
+      .where(eq(projectsTable.user_id, userId))
+      .orderBy(desc(projectsTable.id));
+
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
+
+    const projects = await db
+      .select()
+      .from(projectsTable)
+      .where(eq(projectsTable.user_id, id))
+      .orderBy(desc(projectsTable.id));
+
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+// router.get(process.env.REQUEST_ORIGIN === "cms-api" ? "/" : "/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const id = process.env.REQUEST_ORIGIN === "cms-api" ? (req as any).user?.profileId : parseInt(req.params.id);
+//     if (!id) {
+//       return res.status(401).json({ error: "Unauthorized, please login again" });
+//       }
+//       const project = await db.select().from(projectsTable).where(eq(projectsTable.user_id, id)).orderBy(desc(projectsTable.id));
+//       return res.status(200).json(project);
+//     } catch (err) {
+//       console.error(err);
+//       return res.status(500).json({ error: "Internal server error" });
+//     }
+//   });
 
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
