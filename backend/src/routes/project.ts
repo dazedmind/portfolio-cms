@@ -12,7 +12,7 @@ router.post("/", authMiddleware, async (req, res) => {
     console.log("📦 Creating new project, received data:", req.body);
     
     // Expecting fields from client form
-    const { projectName, projectDescription, projectLink, projectTechnologies, projectType, image } = req.body ?? {};
+    const { projectName, projectDescription, projectLink, projectTechnologies, projectType, image, hasArticle, articleLink } = req.body ?? {};
 
     console.log("🖼️  Image URL received:", image);
 
@@ -38,11 +38,26 @@ router.post("/", authMiddleware, async (req, res) => {
         type: projectType,
         image: image ?? "",
         user_id: userId,
+        has_article: hasArticle ?? false,
+        article_link: articleLink ?? null,
       })
       .returning();
 
-    console.log("✅ Project created successfully:", created);
-    return res.status(201).json(created);
+    // Map snake_case to camelCase for frontend
+    const mappedProject = {
+      id: created.id,
+      name: created.name,
+      description: created.description,
+      link: created.link,
+      technologies: created.technologies,
+      type: created.type,
+      image: created.image,
+      hasArticle: created.has_article,
+      articleLink: created.article_link || "",
+    };
+
+    console.log("✅ Project created successfully:", mappedProject);
+    return res.status(201).json(mappedProject);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -63,7 +78,20 @@ router.get("/", authMiddleware, async (req, res) => {
       .where(eq(projectsTable.user_id, userId))
       .orderBy(desc(projectsTable.id));
 
-    res.json(projects);
+    // Map snake_case to camelCase for frontend
+    const mappedProjects = projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      link: project.link,
+      technologies: project.technologies,
+      type: project.type,
+      image: project.image,
+      hasArticle: project.has_article,
+      articleLink: project.article_link || "",
+    }));
+
+    res.json(mappedProjects);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -116,10 +144,19 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (!userId || !Number.isInteger(id)) {
       return res.status(400).json({ error: "Invalid request" });
     }
-    const { projectName, projectDescription, projectLink, projectTechnologies, projectType, image } = req.body ?? {};
+    const { projectName, projectDescription, projectLink, projectTechnologies, projectType, image, hasArticle, articleLink } = req.body ?? {};
     const updated = await db
       .update(projectsTable)
-      .set({ name: projectName, description: projectDescription, image: image ?? "", link: projectLink, technologies: projectTechnologies, type: projectType })
+      .set({ 
+        name: projectName, 
+        description: projectDescription, 
+        image: image ?? "", 
+        link: projectLink, 
+        technologies: projectTechnologies, 
+        type: projectType, 
+        has_article: hasArticle ?? false, 
+        article_link: articleLink ?? null 
+      })
       .where(and(eq(projectsTable.id, id), eq(projectsTable.user_id, userId)))
       .returning();
 
@@ -127,8 +164,22 @@ router.put("/:id", authMiddleware, async (req, res) => {
       console.log("❌ Project not found");
       return res.status(404).json({ error: "Project not found" });
     }
-    console.log("✅ Project updated successfully:", updated[0]);
-    res.json(updated[0]);
+    
+    // Map snake_case to camelCase for frontend
+    const mappedProject = {
+      id: updated[0].id,
+      name: updated[0].name,
+      description: updated[0].description,
+      link: updated[0].link,
+      technologies: updated[0].technologies,
+      type: updated[0].type,
+      image: updated[0].image,
+      hasArticle: updated[0].has_article,
+      articleLink: updated[0].article_link || "",
+    };
+    
+    console.log("✅ Project updated successfully:", mappedProject);
+    res.json(mappedProject);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });

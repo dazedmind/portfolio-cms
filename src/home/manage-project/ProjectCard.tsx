@@ -9,6 +9,8 @@ interface ProjectCardProps {
   technologies: string[];
   type: string;
   id: number;
+  hasArticle: boolean;
+  articleLink: string;
   handleEdit: (id: number) => void;
   handleDelete: (id: number) => void;
 }
@@ -21,9 +23,12 @@ export default function ProjectCard({
   technologies,
   type,
   id,
+  hasArticle,
+  articleLink,
   handleEdit,
   handleDelete,
 }: ProjectCardProps) {
+  console.log("ProjectCard props:", { id, hasArticle, articleLink });
 
   return (
     <div className="flex flex-col lg:flex-row border border-border bg-card rounded-lg p-6 gap-4 justify-between w-full">
@@ -53,6 +58,15 @@ export default function ProjectCard({
               Technologies: <span className="text-primary">{technologies}</span>
             </p>
             <p className="text-sm text-muted-foreground">Type: {type}</p>
+            {hasArticle ? (
+              <p className="text-sm text-muted-foreground">
+                Article: {articleLink ? (
+                <a href={articleLink} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                    {articleLink.slice(0, 30)}...
+                  </a>
+                ) : null}
+              </p>
+            ) : null}
           </span>
    
         </span>

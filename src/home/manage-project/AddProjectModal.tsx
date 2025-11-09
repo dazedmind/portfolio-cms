@@ -3,6 +3,8 @@ import { Input } from "@/component/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/component/ui/select";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { Label } from "@/component/ui/label";
+import { Checkbox } from "@/component/ui/checkbox";
 
 export default function AddProjectModal({ onSubmit, onClose, formData, setFormData, isEditing, editingFormData }: { onSubmit: (e: React.FormEvent<HTMLFormElement>) => void, onClose: () => void, formData: any, setFormData: (data: any) => void, isEditing: boolean, editingFormData: any }) {
 
@@ -33,6 +35,10 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
     setTimeout(() => {
       onClose();
     }, 300);
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setFormData((prev: any) => ({ ...prev, hasArticle: checked }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +98,28 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                       className="p-2 border border-border rounded-md w-56 h-36 hidden"
                     />
                   </label>
+
+                  <span className="flex items-center gap-2 my-4">
+                    <Checkbox id="hasArticle" name="hasArticle" checked={formData.hasArticle} onCheckedChange={handleCheckboxChange}></Checkbox>
+                    <Label htmlFor="hasArticle">Has Article</Label>
+                  </span>
+                  {formData.hasArticle && (
+                    <span className="flex flex-col gap-2">
+                      <label
+                        htmlFor="articleLink"
+                        className="text-sm font-medium text-muted-foreground"
+                      >
+                        Article Link
+                      </label>
+                      <Input
+                        id="articleLink"
+                        placeholder="Enter Article Link"
+                        type="text"
+                        value={formData.articleLink}
+                        onChange={(e) => setFormData({ ...formData, articleLink: e.target.value })}
+                      />
+                    </span>
+                  )}
                 </span>
                 <div className="space-y-2 w-full">
                   <span className="flex flex-col gap-2">

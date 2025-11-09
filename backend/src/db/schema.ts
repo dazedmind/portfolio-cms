@@ -8,6 +8,8 @@ export const projectsTable = pgTable("projects", {
   link: varchar({ length: 255 }).notNull(),
   technologies: varchar({ length: 255 }).notNull(),
   type: varchar({ length: 255 }).notNull(),
+  has_article:boolean().notNull().default(false),
+  article_link:varchar({ length: 255 }),
   user_id: integer().references(() => profileTable.id).notNull(),
 });
 

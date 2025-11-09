@@ -1,27 +1,27 @@
 import { Router } from "express";
 import { db } from "@/db/database";
 import { employmentsTable } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { authMiddleware } from "@/middleware/auth";
 
 const router = Router();
 
-// router.get("/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     if (!id) {
-//       return res.status(401).json({ error: "Unauthorized, please login again" });
-//     }
-//     const employments = await db.select().from(employmentsTable).where(eq(employmentsTable.user_id, parseInt(id))).orderBy(asc(employmentsTable.id));
-//     if (employments.length === 0) {
-//       return res.status(404).json({ error: "No employments found" });
-//     }
-//     return res.status(200).json(employments);
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ error: "Internal server error" });
-//   }
-// });
+router.get("/:id", authMiddleware, async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(401).json({ error: "Unauthorized, please login again" });
+    }
+    const employments = await db.select().from(employmentsTable).where(eq(employmentsTable.user_id, parseInt(id))).orderBy(asc(employmentsTable.id));
+    if (employments.length === 0) {
+      return res.status(404).json({ error: "No employments found" });
+    }
+    return res.status(200).json(employments);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 router.get("/", authMiddleware, async (req, res) => {
     try {

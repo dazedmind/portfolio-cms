@@ -23,6 +23,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     projectType: string;
     projectImage: string;
     projectImageFile?: File;
+    hasArticle: boolean;
+    articleLink: string;
   }>({
     projectName: "",
     projectDescription: "",
@@ -30,6 +32,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     projectTechnologies: "",
     projectType: "",
     projectImage: "",
+    hasArticle: false,
+    articleLink: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
@@ -41,6 +45,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     projectType: string;
     projectImage: string;
     projectImageFile?: File;
+    hasArticle: boolean;
+    articleLink: string;
   }>({
     projectName: "",
     projectDescription: "",
@@ -48,6 +54,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     projectTechnologies: [] as never[],
     projectType: "",
     projectImage: "",
+    hasArticle: false,
+    articleLink: "",
   });
 
   interface Project {
@@ -58,6 +66,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
     link: string;
     technologies: string[];
     type: string;
+    hasArticle: boolean;
+    articleLink: string;
   }
 
   const fetchProjects = async () => {
@@ -108,6 +118,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       projectType: "",
       projectImage: "",
       projectImageFile: undefined,
+      hasArticle: false,
+      articleLink: "",
     });
     
     // Reset edit form data
@@ -119,7 +131,9 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       projectType: "",
       projectImage: "",
       projectImageFile: undefined,
-    });
+      hasArticle: false,
+      articleLink: "",
+    } as any);
   };
 
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -149,6 +163,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
         projectTechnologies: formData.projectTechnologies,
         projectType: formData.projectType,
         image: uploadedImageUrl, // Changed from projectImage to image
+        hasArticle: formData.hasArticle,
+        articleLink: formData.articleLink,
       };
 
       const response = await fetch(`${API_BASE_URL}/api/project`, {
@@ -163,7 +179,6 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       
       if (response.ok) {
         toast.success("Project added successfully");
-        
         // Close modal and reset state
         handleCloseModal();
         
@@ -253,6 +268,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
       projectTechnologies: projectToEdit.technologies as unknown as never[],
       projectType: projectToEdit.type,
       projectImage: projectToEdit.image,
+      hasArticle: projectToEdit.hasArticle,
+      articleLink: projectToEdit.articleLink ?? "",
     } as any);
   };
 
@@ -284,6 +301,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
         projectTechnologies: editingFormData.projectTechnologies,
         projectType: editingFormData.projectType,
         image: newImageUrl, // Changed from projectImage to image
+        hasArticle: editingFormData.hasArticle,
+        articleLink: editingFormData.articleLink,
       };
 
       const response = await fetch(`${API_BASE_URL}/api/project/${editingProjectId}`, {
@@ -371,6 +390,8 @@ export default function ManageProject({ handleOpenSidebar }: ManageProjectProps)
               link={project.link}
               technologies={project.technologies}
               type={project.type}
+              hasArticle={project.hasArticle}
+              articleLink={project.articleLink || ""}
             />
           ))}
         </div>
