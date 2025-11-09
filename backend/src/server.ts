@@ -9,6 +9,7 @@ import apiKeyRoutes from './routes/apiKey.js';
 import employmentRoutes from './routes/employment.js';
 import promptRoutes from './routes/prompt.js';
 import uploadRoutes from './routes/upload.js';
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -20,18 +21,24 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Allow your portfolio domain
+app.use(cors({
+  origin: ["https://johnallen.is-a.dev", "http://localhost:5173"], // add local dev URL if needed
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true
+}));
 
 // CORS middleware (adjust as needed for your frontend)
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//   if (req.method === 'OPTIONS') {
+//     res.sendStatus(200);
+//   } else {
+//     next();
+//   }
+// });
 
 app.get("/", (req: Request, res: Response) => {
   res.send("✅ Backend is live and running!");
