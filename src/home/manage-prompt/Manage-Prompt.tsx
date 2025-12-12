@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
-import { API_BASE_URL } from "@/lib/api";
 import { Menu, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/component/ui/button";
 // import { decodeToken } from "@/lib/auth";
@@ -49,7 +48,7 @@ export default function ManagePrompt({
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/api/prompt/${profileId}`, {
+      const res = await fetch(`/.netlify/functions/prompt/${profileId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -80,7 +79,7 @@ export default function ManagePrompt({
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/api/prompt`, {
+      const res = await fetch(`/.netlify/functions/prompt`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -105,7 +104,7 @@ export default function ManagePrompt({
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/api/prompt`, {
+      const res = await fetch(`/.netlify/functions/prompt`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
