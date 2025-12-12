@@ -28,7 +28,6 @@ export default function ProjectCard({
   handleEdit,
   handleDelete,
 }: ProjectCardProps) {
-  console.log("ProjectCard props:", { id, hasArticle, articleLink });
 
   return (
     <div className="flex flex-col lg:flex-row border border-border bg-card rounded-lg p-6 gap-4 justify-between w-full">

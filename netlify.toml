@@ -1,0 +1,85 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[dev]
+  command = "vite"
+  port = 8888
+  targetPort = 5173
+  framework = "#custom"
+
+[[redirects]]
+  from = "/api/login"
+  to = "/.netlify/functions/login"
+  status = 200
+
+[[redirects]]
+  from = "/api/profile/:id"
+  to = "/.netlify/functions/profile/:id"
+  status = 200
+
+[[redirects]]
+  from = "/api/project/*"
+  to = "/.netlify/functions/project/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/project"
+  to = "/.netlify/functions/project"
+  status = 200
+
+[[redirects]]
+  from = "/api/skills/:id"
+  to = "/.netlify/functions/skills/:id"
+  status = 200
+
+[[redirects]]
+  from = "/api/skills"
+  to = "/.netlify/functions/skills"
+  status = 200
+
+[[redirects]]
+  from = "/api/employment/:id"
+  to = "/.netlify/functions/employment/:id"
+  status = 200
+
+[[redirects]]
+  from = "/api/employment"
+  to = "/.netlify/functions/employment"
+  status = 200
+
+[[redirects]]
+  from = "/api/upload"
+  to = "/.netlify/functions/upload"
+  status = 200
+
+[[redirects]]
+  from = "/api/apiKey/*"
+  to = "/.netlify/functions/apiKey/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/apiKey"
+  to = "/.netlify/functions/apiKey"
+  status = 200
+
+[[redirects]]
+  from = "/api/prompt/*"
+  to = "/.netlify/functions/prompt/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/prompt"
+  to = "/.netlify/functions/prompt"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@aws-sdk/client-s3"]
+

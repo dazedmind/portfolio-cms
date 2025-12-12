@@ -1,7 +1,6 @@
 import { Button } from "@/component/ui/button";
-import { useState } from "react";
-import { toast } from "sonner";
-import { API_BASE_URL } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
 import { Menu } from "lucide-react";
 
 export default function ManageAccess({
@@ -10,33 +9,68 @@ export default function ManageAccess({
   handleOpenSidebar: () => void;
 }) {
   const [apiKey, setApiKey] = useState<string>("");
+  const [generatedKeys, setGeneratedKeys] = useState<string>("");
+  const [hasGeneratedKeys, setHasGeneratedKeys] = useState<boolean>(false);
+
   const fetchApiKey = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_BASE_URL}/api/key`, {
+      const res = await fetch(`/.netlify/functions/apiKey`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        setApiKey(data.apiKey);
+        setGeneratedKeys(data.apiKey);
+        setHasGeneratedKeys(true);
       }
     } catch {}
   };
+
+  useEffect(() => {
+    fetchApiKey();
+  }, []);
+
   const rotateApiKey = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_BASE_URL}/api/key/rotate`, {
+      const res = await fetch(`/.netlify/functions/apiKey`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setApiKey(data.apiKey);
+        
         toast.success("API key regenerated");
       }
     } catch {
       toast.error("Failed to regenerate API key");
     }
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("API key copied to clipboard");
+  };
+
+  const handleDelete = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`/.netlify/functions/apiKey`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        toast.success("API key deleted");
+        setGeneratedKeys("");
+        setHasGeneratedKeys(false);
+      } else {
+        toast.error("Failed to delete API key");
+      }
+    } catch {
+      toast.error("Failed to delete API key");
+    }
+    toast.success("Deleted");
   };
 
   return (
@@ -67,34 +101,45 @@ export default function ManageAccess({
               value={apiKey}
               readOnly
               onFocus={(e) => e.currentTarget.select()}
-              className="w-full rounded-md border border-input bg-transparent p-2 text-sm"
+              className="w-full rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none"
               placeholder="Generate an API key"
             />
             <Button
               variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(apiKey || "");
-                toast.success("Copied");
-              }}
+              onClick={() => handleCopy(apiKey || "")}
               disabled={!apiKey}
             >
               Copy
             </Button>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="default" onClick={fetchApiKey}>
-              View key
-            </Button>
-            <Button variant="destructive" onClick={rotateApiKey}>
+            <Button variant="default" onClick={rotateApiKey} disabled={hasGeneratedKeys}>
               Regenerate
             </Button>
           </div>
+
           <p className="text-xs text-muted-foreground">
             This key is tied to your account and can be used to access read
             endpoints that require an API key. Keep it secret.
           </p>
         </div>
+
+        <div>
+          <h2 className="text-lg font-semibold">Generated API Key</h2>
+
+          <div className="flex items-center gap-2">
+            <input type="password" value={generatedKeys} readOnly disabled onFocus={(e) => e.currentTarget.select()} className="w-full rounded-md border border-input bg-transparent p-2 text-sm focus:outline-none" />
+            <Button variant="outline" onClick={() => handleCopy(generatedKeys)}>
+              Copy
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Only one API key is allowed. Delete the existing key to generate a new one.
+          </p>
+        </div>
       </div>
+      <Toaster />
     </div>
   );
 }

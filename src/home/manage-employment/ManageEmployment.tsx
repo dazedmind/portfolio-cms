@@ -59,9 +59,12 @@ export default function ManageEmployment({ handleOpenSidebar }: ManageEmployment
       });
       if (response.ok) {
         const data = await response.json();
+        console.log("✅ Fetched employments:", data);
         setEmployments(data);
       } else {
         console.log("❌ Failed to fetch employments");
+        const errorData = await response.json();
+        console.log("Error details:", errorData);
       }
     } catch (error) {
       console.error("Error fetching employments:", error);
