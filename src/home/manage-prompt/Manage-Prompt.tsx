@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
-import { Menu, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Menu, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/component/ui/button";
 // import { decodeToken } from "@/lib/auth";
 
