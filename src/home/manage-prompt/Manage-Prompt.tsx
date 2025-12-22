@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast, Toaster } from "sonner";
-import { Menu, Pencil, Plus, Trash2 } from "lucide-react";
+import { Menu, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/component/ui/button";
 // import { decodeToken } from "@/lib/auth";
 
@@ -154,7 +154,7 @@ export default function ManagePrompt({
         </div>
         <div className="space-y-3">
           <div className="flex flex-col gap-2">
-            <form onSubmit={handleAddPrompt} className="flex flex-col gap-2">
+            <form onSubmit={handleAddPrompt} className="flex flex-col gap-2 w-auto lg:w-full">
               <textarea
                 value={prompt || ""}
                 name="prompt"
@@ -164,18 +164,26 @@ export default function ManagePrompt({
                 rows={20}
               ></textarea>
 
-              <span className="flex gap-2">
-                <Button className="w-fit" variant="default" type="submit" disabled={hasPrompt}>
-                  <Plus className="w-4 h-4" />
-                  Add System Prompt
-                </Button>
-                <Button className="w-fit" variant="outline" type="button" onClick={handleUpdatePrompt}>
-                  <Pencil className="w-4 h-4" />
-                  Update System Prompt
-                </Button>
-                <Button className="w-fit" variant="destructive" onClick={handleDeletePrompt}>
+              <span className="flex flex-col md:flex-row gap-2">
+                {!hasPrompt && (
+                  <div>
+                    <Button className="w-full md:w-fit" variant="default" type="submit" disabled={hasPrompt}>
+                      <Plus className="w-4 h-4" />
+                      Add Prompt
+                    </Button>
+                  </div>
+                )}
+                {hasPrompt && (
+                  <div>
+                    <Button className="w-full md:w-fit" variant="outline" type="button" onClick={handleUpdatePrompt}>
+                      <RotateCcw className="w-4 h-4" />
+                      Update Prompt
+                    </Button>
+                  </div>
+                )}
+                <Button className="w-full md:w-fit" variant="destructive" onClick={handleDeletePrompt}>
                   <Trash2 className="w-4 h-4" />
-                  Delete System Prompt
+                  Delete Prompt
             </Button>
               </span>
             </form>

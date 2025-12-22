@@ -39,6 +39,11 @@ export default function HomePage() {
     switchTab(tab);
   };
 
+  const handleTabChangeAndCloseSidebar = (tab: string) => {
+    switchTab(tab);
+    handleCloseSidebar();
+  };
+
   const handleOpenSidebar = () => {
     setIsSidebarOpen(true);
     // trigger enter animation on next frame
@@ -86,7 +91,7 @@ export default function HomePage() {
             }`}
           >
             <SideBar 
-              handleTabChange={handleTabChange} 
+              handleTabChange={handleTabChangeAndCloseSidebar} 
               activeTab={activeTab}
               onTabHover={preloadTab}
               onTabHoverEnd={cancelPreload}

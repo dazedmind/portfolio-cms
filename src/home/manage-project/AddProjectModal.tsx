@@ -67,18 +67,17 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
   
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className={`bg-card border border-border rounded-lg space-y-4 p-6 w-2/4 h-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
-          <h1 className="text-2xl font-semibold text-primary mb-2">
-            {isEditing ? "Edit Project" : "Add Project"}
-          </h1>
+          <div className={`bg-card border border-border rounded-lg space-y-4 p-6 w-auto h-auto ${isClosing ? 'fadeOut' : 'fadeIn'}`}>
+            <h1 className="text-2xl font-semibold text-primary mb-2">
+              {isEditing ? "Edit Project" : "Add Project"}
+            </h1>
 
             <form onSubmit={onSubmit}>
-              <div className="flex gap-4">
-                <span className="w-full">
-
+              <div className="flex flex-col lg:flex-row gap-4">
+                <span className="w-auto">
                   <p className="text-sm font-medium text-muted-foreground mb-2">Select Project Image</p>
                   <label htmlFor="projectImage" className="text-sm font-medium text-muted-foreground  cursor-pointer">
-                    <div className="flex flex-col gap-1 items-center justify-center border border-tertiary rounded-md w-auto h-48">
+                    <div className="aspect-video flex flex-col gap-1 items-center justify-center border border-tertiary rounded-md w-auto h-48">
                       {imagePreview ? (
                         <img src={imagePreview} alt="Project Image" className="w-full h-full object-cover rounded-md" />
                       ) : (
@@ -121,7 +120,7 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                     </span>
                   )}
                 </span>
-                <div className="space-y-2 w-full">
+                <div className="space-y-2 w-auto lg:w-124">
                   <span className="flex flex-col gap-2">
                     <label
                       htmlFor="projectName"
@@ -139,14 +138,19 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                   </span>
 
                   <span className="flex flex-col gap-2">
-                      <label
-                        htmlFor="projectDescription"
-                        className="text-sm font-medium text-muted-foreground"
-                      >
-                        Project Description
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label
+                          htmlFor="projectDescription"
+                          className="text-sm font-medium text-muted-foreground"
+                        >
+                          Project Description
+                        </label>
+                        <span className={`text-xs ${formData.projectDescription.length > 150 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                          {formData.projectDescription.length}/150
+                        </span>
+                      </div>
       
-                      <textarea name="projectDescription" id="projectDescription" placeholder="Enter Project Description" value={formData.projectDescription} onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })} className="w-full h-24 border border-border rounded-md p-2 bg-accent outline-none resize-none text-sm" maxLength={255}></textarea>
+                      <textarea name="projectDescription" id="projectDescription" placeholder="Enter Project Description" value={formData.projectDescription} onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })} className="w-full h-24 border border-border rounded-md p-2 bg-accent outline-none resize-none text-sm" maxLength={150}></textarea>
                   </span>
                   <span className="flex flex-col gap-2">
                     <label
