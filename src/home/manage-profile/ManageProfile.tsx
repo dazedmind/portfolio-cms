@@ -19,7 +19,6 @@ import {
 import { toast, Toaster } from "sonner";
 import LoadingPage from "@/component/LoadingPage";
 import AddSkillModal from "./AddSkillModal";
-import { API_BASE_URL } from "@/lib/api";
 import { uploadFileViaBackend, deleteFileViaBackend } from "@/lib/uploadHelper";
 
 interface Profile {
@@ -105,7 +104,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
         return;
       } else {
         try {
-          const res = await fetch(`${API_BASE_URL}/api/profile/${profileId}`, {
+          const res = await fetch(`/.netlify/functions/profile/${profileId}`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -145,7 +144,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/skills/${profileId}`, {
+      const res = await fetch(`/.netlify/functions/skills/${profileId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -219,7 +218,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
         image: newImageUrl,
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/profile/${profileId}`, {
+      const res = await fetch(`/.netlify/functions/profile/${profileId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -275,7 +274,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
     
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_BASE_URL}/api/skills`, {
+      const res = await fetch(`/.netlify/functions/skills`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -301,7 +300,7 @@ export default function ManageProfile({ handleOpenSidebar }: ManageProfileProps)
   const handleDeleteSkill = async (id: number) => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${API_BASE_URL}/api/skills/${id}`, {
+      const res = await fetch(`/.netlify/functions/skills/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

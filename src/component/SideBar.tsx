@@ -27,9 +27,13 @@ import { API_BASE_URL } from "@/lib/api";
 export default function SideBar({
   handleTabChange,
   activeTab,
+  onTabHover,
+  onTabHoverEnd,
 }: {
   handleTabChange: (tab: string) => void;
   activeTab: string;
+  onTabHover?: (tab: string) => void;
+  onTabHoverEnd?: () => void;
   className?: string;
 }) {
   const { theme, setTheme } = useTheme();
@@ -132,6 +136,8 @@ export default function SideBar({
         <div className={`flex flex-col ${isSidebarOpen ? 'items-start' : 'items-center'} gap-2 p-4 overflow-y-auto text-primary`}>
           <button
             onClick={() => handleTabChange("manage-profile")}
+            onMouseEnter={() => onTabHover?.("manage-profile")}
+            onMouseLeave={onTabHoverEnd}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-profile" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
             <UserRoundPen className="w-4 h-4" />
@@ -139,6 +145,8 @@ export default function SideBar({
           </button>
           <button
             onClick={() => handleTabChange("manage-projects")}
+            onMouseEnter={() => onTabHover?.("manage-projects")}
+            onMouseLeave={onTabHoverEnd}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-projects" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
             <Rocket className="w-4 h-4" />
@@ -146,6 +154,8 @@ export default function SideBar({
           </button>
           <button
             onClick={() => handleTabChange("manage-employment")}
+            onMouseEnter={() => onTabHover?.("manage-employment")}
+            onMouseLeave={onTabHoverEnd}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-employment" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
             <Briefcase className="w-4 h-4" />
@@ -153,6 +163,8 @@ export default function SideBar({
           </button>
           <button
             onClick={() => handleTabChange("manage-access")}
+            onMouseEnter={() => onTabHover?.("manage-access")}
+            onMouseLeave={onTabHoverEnd}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-access" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
             <Key className="w-4 h-4" />
@@ -160,6 +172,8 @@ export default function SideBar({
           </button>
           <button
             onClick={() => handleTabChange("manage-prompt")}
+            onMouseEnter={() => onTabHover?.("manage-prompt")}
+            onMouseLeave={onTabHoverEnd}
             className={`flex items-center ${isSidebarOpen ? 'justify-start' : 'justify-center'} gap-2 p-2 hover:text-muted-foreground hover:bg-sidebar-accent rounded-md cursor-pointer sidebar-button w-full ${activeTab === "manage-prompt" ? "bg-sidebar-accent" : ""} transition-all duration-300`}
           >
             <Brain className="w-4 h-4" />
@@ -185,7 +199,7 @@ export default function SideBar({
               align="start"
             >
               <DropdownMenuItem
-                onClick={handleLogout}
+                onClick={() => handleTabChange("settings")}
                 className="flex items-center gap-2 cursor-pointer p-2 outline-none hover:bg-accent rounded-md"
               >
                 <Settings className="w-4 h-4" />

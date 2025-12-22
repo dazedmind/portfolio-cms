@@ -32,7 +32,7 @@ export default function ProjectCard({
   return (
     <div className="flex flex-col lg:flex-row border border-border bg-card rounded-lg p-6 gap-4 justify-between w-full">
       <div className="flex flex-col md:flex-row gap-4 w-full">
-        <span className="aspect-video w-100 h-auto object-cover flex items-center justify-center bg-muted border-2 border-border rounded-lg overflow-hidden">
+        <span className="aspect-video w-auto md:w-100 h-auto object-cover flex items-center justify-center bg-muted border-2 border-border rounded-lg overflow-hidden">
         {image ? (
             <img
               src={image}

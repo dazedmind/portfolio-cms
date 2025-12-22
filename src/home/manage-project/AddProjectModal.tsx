@@ -190,11 +190,11 @@ export default function AddProjectModal({ onSubmit, onClose, formData, setFormDa
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Web App">Web App</SelectItem>
-                      <SelectItem value="Website">Website</SelectItem>
+                      <SelectItem value="Mobile App">Mobile App</SelectItem>
                       <SelectItem value="UI/UX Design">UI/UX</SelectItem>
                       <SelectItem value="Portfolio">Portfolio</SelectItem>
-                      <SelectItem value="Mobile App">Mobile App</SelectItem>
-
+                      <SelectItem value="Capstone Project">Capstone Project</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
